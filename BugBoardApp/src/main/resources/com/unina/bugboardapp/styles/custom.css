@@ -1,0 +1,70 @@
+/* Simplified Custom CSS for Stability */
+
+.root {
+    -color-primary-5: #4f46e5;
+    -color-bg-default: #ffffff;
+    -color-bg-subtle: #f3f4f6;
+}
+
+/* Typography Overrides */
+.title-1 {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.title-2 {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.title-3 {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.title-4 {
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-fg-muted;
+}
+
+/* Card Style - Simple & Robust */
+.card {
+    -fx-background-color: -color-bg-default;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 5, 0, 0, 1);
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: -color-border-subtle;
+}
+
+/* Login Panel */
+.login-left-panel {
+    -fx-background-color: -color-primary-5;
+}
+
+.login-right-panel {
+    -fx-background-color: -color-bg-default;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-background-color: -color-bg-subtle;
+    -fx-border-color: transparent -color-border-default transparent transparent;
+}
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10 15;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Table View */
+.table-view .column-header {
+    -fx-background-color: -color-bg-subtle;
+    -fx-font-weight: bold;
+}

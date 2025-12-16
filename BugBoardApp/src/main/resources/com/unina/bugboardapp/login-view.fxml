@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane stylesheets="@styles/custom.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.unina.bugboardapp.controller.LoginController" style="-fx-background-color: -color-bg-subtle;">
+    <children>
+        <HBox alignment="CENTER" spacing="0">
+            <!-- Left Side - Brand -->
+            <VBox alignment="CENTER" styleClass="login-left-panel" HBox.hgrow="ALWAYS" prefWidth="400">
+                <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
+                <Label text="🐛" style="-fx-font-size: 80px;" />
+                <Label text="BugBoard" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;" />
+                <Label text="Squash bugs like a pro." style="-fx-font-size: 16px; -fx-text-fill: white; -fx-opacity: 0.9;" />
+            </VBox>
+
+            <!-- Right Side - Login Form -->
+            <VBox alignment="CENTER" styleClass="login-right-panel" HBox.hgrow="ALWAYS" prefWidth="400">
+                <padding><Insets top="40" right="60" bottom="40" left="60"/></padding>
+                
+                <VBox spacing="20" alignment="CENTER_LEFT" maxWidth="350">
+                    <Label text="Welcome Back" styleClass="title-1" />
+                    <Label text="Please sign in to continue" styleClass="title-4" />
+                    
+                    <VBox spacing="5" style="-fx-padding: 10 0 0 0;">
+                        <Label text="Email Address" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="emailField" promptText="name@company.com" style="-fx-pref-height: 40px;" />
+                    </VBox>
+                    
+                    <VBox spacing="5">
+                         <Label text="Password" style="-fx-font-weight: bold;" />
+                         <PasswordField fx:id="passwordField" promptText="Enter your password" style="-fx-pref-height: 40px;" />
+                    </VBox>
+                    
+                    <Label fx:id="errorLabel" text="Invalid credentials" visible="false" style="-fx-text-fill: -color-danger-fg;" wrapText="true" />
+                    
+                    <Button fx:id="loginButton" text="Sign In" onAction="#onLogin" defaultButton="true" maxWidth="Infinity" styleClass="button,accent" style="-fx-pref-height: 40px; -fx-font-weight: bold; -fx-font-size: 14px;" />
+                    
+                    <VBox alignment="CENTER" spacing="10.0" style="-fx-padding: 20 0 0 0;">
+                       <Label text="Test credentials:" styleClass="text-caption" style="-fx-text-fill: -color-fg-muted;" />
+                       <Label text="admin@bugboard.com / admin" style="-fx-font-size: 12px; -fx-text-fill: -color-fg-muted; -fx-font-family: 'Monospaced';" />
+                       <Label text="user@bugboard.com / user" style="-fx-font-size: 12px; -fx-text-fill: -color-fg-muted; -fx-font-family: 'Monospaced';" />
+                    </VBox>
+                </VBox>
+            </VBox>
+        </HBox>
+    </children>
+</StackPane>

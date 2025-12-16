@@ -1,0 +1,237 @@
+/* BugBoard - Custom Styles */
+
+/* Root Variables */
+.root {
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 14px;
+    
+    /* Custom Colors */
+    -bugboard-primary: #0366d6;
+    -bugboard-primary-hover: #0256c2;
+    -bugboard-success: #28a745;
+    -bugboard-danger: #d73a49;
+    -bugboard-warning: #ffa500;
+    -bugboard-background: #f6f8fa;
+    -bugboard-card-background: #ffffff;
+    -bugboard-border: #e1e4e8;
+    -bugboard-text-primary: #24292e;
+    -bugboard-text-secondary: #586069;
+    -bugboard-shadow: rgba(27, 31, 35, 0.15);
+}
+
+/* Enhanced Button Styles */
+.button {
+    -fx-background-color: -bugboard-primary;
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-padding: 8px 16px;
+    -fx-font-weight: 600;
+    -fx-effect: dropshadow(three-pass-box, -bugboard-shadow, 2, 0, 0, 1);
+    -fx-transition: all 0.2s ease;
+}
+
+.button:hover {
+    -fx-background-color: -bugboard-primary-hover;
+    -fx-effect: dropshadow(three-pass-box, -bugboard-shadow, 4, 0, 0, 2);
+}
+
+.button:pressed {
+    -fx-background-color: derive(-bugboard-primary, -20%);
+    -fx-effect: none;
+    -fx-scale-y: 0.98;
+    -fx-scale-x: 0.98;
+}
+
+.button.accent {
+    -fx-background-color: -bugboard-success;
+    -fx-font-size: 15px;
+    -fx-padding: 10px 20px;
+}
+
+.button.accent:hover {
+    -fx-background-color: derive(-bugboard-success, -10%);
+}
+
+.button.danger {
+    -fx-background-color: -bugboard-danger;
+}
+
+.button.danger:hover {
+    -fx-background-color: derive(-bugboard-danger, -10%);
+}
+
+.button.flat {
+    -fx-background-color: transparent;
+    -fx-text-fill: -bugboard-text-primary;
+    -fx-background-radius: 6px;
+    -fx-effect: none;
+    -fx-padding: 10px 16px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.button.flat:hover {
+    -fx-background-color: -bugboard-background;
+    -fx-effect: none;
+}
+
+.button.flat:pressed {
+    -fx-background-color: derive(-bugboard-background, -5%);
+}
+
+/* Enhanced Text Field Styles */
+.text-field, .password-field {
+    -fx-background-color: -bugboard-card-background;
+    -fx-border-color: -bugboard-border;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 12px;
+    -fx-font-size: 14px;
+    -fx-text-fill: -bugboard-text-primary;
+    -fx-prompt-text-fill: -bugboard-text-secondary;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: -bugboard-primary;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(three-pass-box, rgba(3, 102, 214, 0.3), 4, 0, 0, 0);
+}
+
+/* Labels */
+.label {
+    -fx-text-fill: -bugboard-text-primary;
+}
+
+.label.title-1 {
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+}
+
+.label.title-2 {
+    -fx-font-size: 24px;
+    -fx-font-weight: 600;
+}
+
+.label.title-3 {
+    -fx-font-size: 20px;
+    -fx-font-weight: 600;
+}
+
+.label.title-4 {
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-text-fill: -bugboard-text-secondary;
+}
+
+.label.text-caption {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -bugboard-text-primary;
+}
+
+.label.error-label {
+    -fx-text-fill: -bugboard-danger;
+    -fx-font-size: 13px;
+    -fx-padding: 8px 12px;
+    -fx-background-color: rgba(215, 58, 73, 0.1);
+    -fx-background-radius: 6px;
+    -fx-border-color: -bugboard-danger;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+}
+
+/* Login Card */
+.login-card {
+    -fx-background-color: -bugboard-card-background;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(three-pass-box, rgba(27, 31, 35, 0.12), 12, 0, 0, 4);
+    -fx-padding: 40px;
+    -fx-min-width: 400px;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-background-color: -bugboard-card-background;
+    -fx-border-color: -bugboard-border;
+    -fx-border-width: 0 1 0 0;
+    -fx-min-width: 250px;
+}
+
+/* Content Area */
+.content-area {
+    -fx-background-color: -bugboard-background;
+}
+
+/* Separator */
+.separator {
+    -fx-background-color: -bugboard-border;
+}
+
+.separator .line {
+    -fx-border-color: -bugboard-border;
+    -fx-border-width: 1px 0 0 0;
+}
+
+/* Scrollbar Styling */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: derive(-bugboard-border, -20%);
+    -fx-background-radius: 4px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: derive(-bugboard-border, -40%);
+}
+
+/* Badge Styles */
+.badge {
+    -fx-background-radius: 12px;
+    -fx-padding: 2px 8px;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.badge.priority-high {
+    -fx-background-color: rgba(215, 58, 73, 0.1);
+    -fx-text-fill: -bugboard-danger;
+}
+
+.badge.priority-medium {
+    -fx-background-color: rgba(255, 165, 0, 0.1);
+    -fx-text-fill: -bugboard-warning;
+}
+
+.badge.priority-low {
+    -fx-background-color: rgba(40, 167, 69, 0.1);
+    -fx-text-fill: -bugboard-success;
+}
+
+/* Card Component */
+.card {
+    -fx-background-color: -bugboard-card-background;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(three-pass-box, rgba(27, 31, 35, 0.08), 4, 0, 0, 2);
+    -fx-padding: 16px;
+    -fx-border-color: -bugboard-border;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+}
+
+.card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(27, 31, 35, 0.15), 8, 0, 0, 4);
+    -fx-cursor: hand;
+}
+
+/* Animation classes (to be used with JavaFX animations) */
+.fade-in {
+    -fx-opacity: 0;
+}
+
+.slide-up {
+    -fx-translate-y: 20;
+    -fx-opacity: 0;
+}

@@ -1,0 +1,218 @@
+package com.unina.bugboardapp.controller;
+
+import com.unina.bugboardapp.StartApplication;
+import javafx.animation.FadeTransition;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+
+import java.io.IOException;
+import java.util.regex.Pattern;
+
+/**
+ * Controller for the login view
+ * Handles user authentication and navigation to the dashboard
+ */
+public class LoginController {
+
+    // Email validation pattern (RFC 5322 simplified)
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
+
+    private static final int MIN_PASSWORD_LENGTH = 3;
+    private static final String DASHBOARD_VIEW = "dashboard-view.fxml";
+    private static final String DASHBOARD_TITLE = "BugBoard - Dashboard";
+
+    @FXML
+    private TextField emailField;
+
+    @FXML
+    private PasswordField passwordField;
+
+    @FXML
+    private Label errorLabel;
+
+    @FXML
+    private Button loginButton;
+
+    /**
+     * Initialize method called after FXML injection
+     */
+    @FXML
+    public void initialize() {
+        // Hide error label initially
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
+
+        // Add Enter key support
+        passwordField.setOnAction(this::onLogin);
+
+        // Clear error when user starts typing
+        emailField.textProperty().addListener((obs, oldVal, newVal) -> hideError());
+        passwordField.textProperty().addListener((obs, oldVal, newVal) -> hideError());
+    }
+
+    /**
+     * Handles the login button action
+     * 
+     * @param event The action event
+     */
+    @FXML
+    void onLogin(ActionEvent event) {
+        String email = emailField.getText().trim();
+        String password = passwordField.getText();
+
+        // Disable login button during authentication
+        loginButton.setDisable(true);
+
+        // Validate inputs
+        if (!validateInputs(email, password)) {
+            loginButton.setDisable(false);
+            return;
+        }
+
+        // Attempt login
+        boolean success = AppController.getInstance().login(email, password);
+
+        if (success) {
+            hideError();
+            navigateToDashboard(event);
+        } else {
+            showError("Invalid email or password. Please try again.");
+            loginButton.setDisable(false);
+        }
+    }
+
+    /**
+     * Validates user inputs
+     * 
+     * @param email    The email address
+     * @param password The password
+     * @return true if inputs are valid, false otherwise
+     */
+    private boolean validateInputs(String email, String password) {
+        if (email.isEmpty() && password.isEmpty()) {
+            showError("Please enter your email and password.");
+            return false;
+        }
+
+        if (email.isEmpty()) {
+            showError("Please enter your email address.");
+            emailField.requestFocus();
+            return false;
+        }
+
+        if (password.isEmpty()) {
+            showError("Please enter your password.");
+            passwordField.requestFocus();
+            return false;
+        }
+
+        if (!isValidEmail(email)) {
+            showError("Please enter a valid email address.");
+            emailField.requestFocus();
+            return false;
+        }
+
+        if (password.length() < MIN_PASSWORD_LENGTH) {
+            showError("Password must be at least " + MIN_PASSWORD_LENGTH + " characters long.");
+            passwordField.requestFocus();
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validates email format
+     * 
+     * @param email The email to validate
+     * @return true if email is valid, false otherwise
+     */
+    private boolean isValidEmail(String email) {
+        return email != null && EMAIL_PATTERN.matcher(email).matches();
+    }
+
+    /**
+     * Shows error message with animation
+     * 
+     * @param message The error message to display
+     */
+    private void showError(String message) {
+        errorLabel.setText(message);
+        errorLabel.setVisible(true);
+        errorLabel.setManaged(true);
+
+        // Fade in animation
+        FadeTransition fade = new FadeTransition(Duration.millis(300), errorLabel);
+        fade.setFromValue(0.0);
+        fade.setToValue(1.0);
+        fade.play();
+    }
+
+    /**
+     * Hides error message
+     */
+    private void hideError() {
+        if (errorLabel.isVisible()) {
+            FadeTransition fade = new FadeTransition(Duration.millis(200), errorLabel);
+            fade.setFromValue(1.0);
+            fade.setToValue(0.0);
+            fade.setOnFinished(e -> {
+                errorLabel.setVisible(false);
+                errorLabel.setManaged(false);
+            });
+            fade.play();
+        }
+    }
+
+    /**
+     * Navigates to the dashboard view
+     * 
+     * @param event The action event
+     */
+    private void navigateToDashboard(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(StartApplication.class.getResource(DASHBOARD_VIEW));
+            Parent root = loader.load();
+
+            Scene currentScene = ((Node) event.getSource()).getScene();
+            Stage stage = (Stage) currentScene.getWindow();
+
+            // Create new scene
+            Scene newScene = new Scene(root);
+
+            // Apply fade transition between scenes
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), currentScene.getRoot());
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(e -> {
+                stage.setScene(newScene);
+                stage.setTitle(DASHBOARD_TITLE);
+                stage.centerOnScreen();
+
+                // Fade in new scene
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(300), newScene.getRoot());
+                fadeIn.setFromValue(0.0);
+                fadeIn.setToValue(1.0);
+                fadeIn.play();
+            });
+            fadeOut.play();
+
+        } catch (IOException e) {
+            System.err.println("Failed to load dashboard: " + e.getMessage());
+            e.printStackTrace();
+            showError("Unable to load dashboard. Please try again.");
+            loginButton.setDisable(false);
+        }
+    }
+}

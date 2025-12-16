@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" stylesheets="@styles/custom.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.unina.bugboardapp.controller.IssueDetailController">
+    <content>
+        <VBox spacing="20.0" style="-fx-background-color: -color-bg-subtle;">
+           <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
+           
+           <!-- Header Card -->
+           <VBox styleClass="card" style="-fx-padding: 20;">
+               <HBox spacing="10" alignment="CENTER_LEFT">
+                   <Label fx:id="typeLabel" text="BUG" style="-fx-font-weight: bold; -fx-padding: 3 8; -fx-background-color: -color-danger-subtle; -fx-background-radius: 4;" />
+                   <Label fx:id="stateLabel" text="OPEN" style="-fx-font-weight: bold; -fx-padding: 3 8; -fx-background-color: -color-neutral-subtle; -fx-background-radius: 4;" />
+                   <Label fx:id="priorityLabel" text="High" styleClass="text-small" />
+               </HBox>
+               
+               <Label fx:id="titleLabel" text="Issue Title" styleClass="title-2" wrapText="true" style="-fx-padding: 10 0 0 0;" />
+               
+               <HBox spacing="5" style="-fx-padding: 10 0 0 0;">
+                   <Label text="Reported by" styleClass="title-4" />
+                   <Label fx:id="reporterLabel" text="user" style="-fx-font-weight: bold;" />
+                   <Label text="on" styleClass="title-4" />
+                   <Label fx:id="dateLabel" text="2023-01-01" styleClass="title-4" />
+               </HBox>
+           </VBox>
+           
+           <!-- Description Card -->
+
+
+           <VBox styleClass="card" style="-fx-padding: 20;" spacing="10">
+               <Label text="Description" styleClass="title-3" />
+               <Label fx:id="descriptionLabel" text="..." wrapText="true" />
+               
+               <VBox fx:id="imageContainer" spacing="5">
+                   <Label text="Attachment" styleClass="title-4" />
+                   <ImageView fx:id="imageView" fitWidth="500" preserveRatio="true" />
+               </VBox>
+           </VBox>
+            
+            <!-- Comments -->
+            <VBox spacing="10">
+                <Label text="Comments" styleClass="title-3" />
+                <VBox fx:id="commentsList" spacing="10" />
+                
+                <!-- Add Comment -->
+                <VBox styleClass="card" style="-fx-padding: 15;" spacing="10">
+                    <TextArea fx:id="commentArea" promptText="Write a comment..." prefHeight="80" wrapText="true" />
+                    <HBox alignment="CENTER_RIGHT">
+                        <Button onAction="#onAddComment" text="Post Comment" styleClass="button,accent" />
+                    </HBox>
+                </VBox>
+            </VBox>
+        </VBox>
+    </content>
+</ScrollPane>

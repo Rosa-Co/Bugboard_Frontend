@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="20.0" stylesheets="@styles/custom.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.unina.bugboardapp.controller.IssueCreateController" style="-fx-background-color: -color-bg-default;" prefWidth="500">
+   <children>
+      <VBox spacing="5.0">
+          <Label text="New Issue" styleClass="title-2" />
+          <Label text="Report a bug or feature" styleClass="title-4" />
+      </VBox>
+      
+      <VBox spacing="15.0">
+          <VBox spacing="5.0">
+             <Label text="Title" style="-fx-font-weight: bold;" />
+             <TextField fx:id="titleField" promptText="Issue title" />
+          </VBox>
+          
+          <HBox spacing="15.0">
+             <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                <Label text="Type" style="-fx-font-weight: bold;" />
+                <ComboBox fx:id="typeCombo" maxWidth="Infinity" />
+             </VBox>
+             <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                <Label text="Priority" style="-fx-font-weight: bold;" />
+                <ComboBox fx:id="priorityCombo" maxWidth="Infinity" />
+             </VBox>
+          </HBox>
+          
+          <VBox spacing="5.0">
+             <Label text="Description" style="-fx-font-weight: bold;" />
+             <TextArea fx:id="descriptionArea" prefHeight="150.0" promptText="Describe the issue..." wrapText="true" />
+          </VBox>
+          
+          <VBox spacing="5.0">
+             <Label text="Attachment Path" style="-fx-font-weight: bold;" />
+             <TextField fx:id="imagePathField" promptText="C:/path/to/image.png" />
+          </VBox>
+      </VBox>
+      
+      <HBox alignment="CENTER_RIGHT" spacing="15.0" style="-fx-padding: 10 0 0 0;">
+         <Button cancelButton="true" onAction="#onCancel" text="Cancel" styleClass="button" />
+         <Button defaultButton="true" onAction="#onSave" text="Create" styleClass="button,accent" style="-fx-font-weight: bold;" />
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+   </padding>
+</VBox>
