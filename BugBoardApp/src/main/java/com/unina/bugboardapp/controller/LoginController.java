@@ -71,16 +71,13 @@ public class LoginController {
         String email = emailField.getText().trim();
         String password = passwordField.getText();
 
-        // Disable login button during authentication
         loginButton.setDisable(true);
 
-        // Validate inputs
         if (!validateInputs(email, password)) {
             loginButton.setDisable(false);
             return;
         }
 
-        // Attempt login
         boolean success = AppController.getInstance().login(email, password);
 
         if (success) {
