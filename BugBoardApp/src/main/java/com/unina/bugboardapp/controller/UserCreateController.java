@@ -1,15 +1,20 @@
 package com.unina.bugboardapp.controller;
 
+import com.unina.bugboardapp.StartApplication;
 import com.unina.bugboardapp.model.User;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 public class UserCreateController {
@@ -83,12 +88,23 @@ public class UserCreateController {
     }
 
     private void closeWindow() {
-        Stage stage = (Stage) emailField.getScene().getWindow();
-        if (stage != null && stage.getTitle().equals("BugBoard")) {
-            emailField.clear();
-            passwordField.clear();
-        } else {
-            stage.close();
+        try {
+            // Otteniamo il contentArea dalla Dashboard risalendo dal nodo corrente
+            StackPane contentArea = (StackPane) emailField.getScene().lookup("#contentArea");
+            
+            if (contentArea != null) {
+                // Carichiamo la vista delle issue
+                FXMLLoader loader = new FXMLLoader(StartApplication.class.getResource("issue-list-view.fxml"));
+                Node view = loader.load();
+                contentArea.getChildren().setAll(view);
+            } else {
+                // Fallback nel caso la vista sia aperta in una finestra separata (modal)
+                Stage stage = (Stage) emailField.getScene().getWindow();
+                stage.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Could not return to the dashboard.");
         }
     }
 
