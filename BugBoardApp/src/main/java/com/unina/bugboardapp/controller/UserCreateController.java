@@ -10,7 +10,14 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.util.regex.Pattern;
+
 public class UserCreateController {
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
+
+    private static final int MIN_PASSWORD_LENGTH = 3;
 
     @FXML
     private TextField emailField;
@@ -34,45 +41,50 @@ public class UserCreateController {
 
     @FXML
     void onSave(ActionEvent event) {
-        if (emailField.getText().isEmpty() || passwordField.getText().isEmpty()) {
-            showAlert("Validation Error", "Please fill in all fields.");
-            return;
-        }
-
         try {
-            AppController.getInstance().createUser(
-                    emailField.getText(),
-                    passwordField.getText(),
-                    typeCombo.getValue());
-            showAlert("Success", "User created successfully.");
+            ValidationResult validation = validateInput();
+            if (!validation.valid()) {
+                showAlert("Validation Error", validation.errorMessage());
+                return;
+            }
+
+            createUserAndShowSuccess();
             closeWindow();
         } catch (IllegalArgumentException e) {
             showAlert("Error", e.getMessage());
         }
     }
 
+    private ValidationResult validateInput() {
+        String email = emailField.getText();
+        String password = passwordField.getText();
+
+        if (email.isBlank() || password.isBlank()) {
+            return ValidationResult.error("Please fill in all fields.");
+        }
+
+        if (password.length() < MIN_PASSWORD_LENGTH) {
+            return ValidationResult.error("Password too short!");
+        }
+
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            return ValidationResult.error("Invalid email format!");
+        }
+
+        return ValidationResult.success();
+    }
+
+    private void createUserAndShowSuccess() {
+        AppController.getInstance().createUser(
+                emailField.getText(),
+                passwordField.getText(),
+                typeCombo.getValue());
+        showAlert("Success", "User created successfully.");
+    }
+
     private void closeWindow() {
         Stage stage = (Stage) emailField.getScene().getWindow();
-        // If this is opened as a modal (Dialog), close it.
-        // If it was injected in the Dashboard, we can't 'close' it easily unless we
-        // switched view.
-        // But since this is administration, usually it's fine to just stay or clear.
-        // However, in DashboardController I used `loadView` which replaces content.
-        // So 'closing' doesn't mean much here if it's not a separate Stage.
-
-        // Let's assume for now it stays there, or provides feedback.
-        // If it is in a Stage (which `closeWindow` implies), it closes.
-        // If it's part of the dashboard, `getWindow()` returns the Main Window. We
-        // definitely DON'T want to close that.
-
-        // Wait, where do I open this? In DashboardController I do:
-        // `loadView("user-create-view.fxml")`.
-        // So it is inside the dashboard.
-        // So I should NOT close the window.
-        // I should probably clear the fields or show a success message.
-
         if (stage != null && stage.getTitle().equals("BugBoard")) {
-            // It's the main window. Do nothing or clear fields.
             emailField.clear();
             passwordField.clear();
         } else {
@@ -82,11 +94,22 @@ public class UserCreateController {
 
     private void showAlert(String header, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        if (header.equals("Error"))
+        if (header.contains("Error"))
             alert.setAlertType(Alert.AlertType.ERROR);
         alert.setTitle(header);
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
     }
+
+    private record ValidationResult(boolean valid, String errorMessage) {
+
+        static ValidationResult success() {
+                return new ValidationResult(true, null);
+            }
+
+            static ValidationResult error(String message) {
+                return new ValidationResult(false, message);
+            }
+        }
 }
