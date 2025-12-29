@@ -3,6 +3,9 @@ package com.unina.bugboardapp.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 public class Issue {
 
@@ -83,16 +86,33 @@ public class Issue {
     private String imagePath; // Optional
     private final List<Comment> comments;
 
-    public Issue(String title, String description, IssueType type, Priority priority, User reporter) {
-        this.id = idCounter++;
-        this.title = title;
-        this.description = description;
-        this.type = type;
-        this.priority = priority;
-        this.reporter = reporter;
-        this.state = IssueState.TODO;
-        this.createdAt = LocalDateTime.now();
-        this.comments = new ArrayList<>();
+    public Issue(@JsonProperty("titolo") String title,@JsonProperty("descrizione") String description,@JsonProperty("tipologia") String type, String priority,@JsonProperty("creataDa") User reporter,@JsonProperty("stato") String state) throws IllegalArgumentException {
+        this.id= idCounter++;
+        this.title= title;
+        this.description= description;
+        this.reporter= reporter;
+        this.createdAt= LocalDateTime.now();
+        this.comments= new ArrayList<>();
+        this.type= switch(type){
+            case "Question" -> IssueType.QUESTION;
+            case "Bug" -> IssueType.BUG;
+            case "Documentation" -> IssueType.DOCUMENTATION;
+            case "Feature" -> IssueType.FEATURE;
+            default -> throw new IllegalArgumentException("Tipo non valido: " + type);
+        };
+        this.priority= switch(priority){
+            case "Low" -> Priority.LOW;
+            case "Medium" -> Priority.MEDIUM;
+            case "High" -> Priority.HIGH;
+            default -> throw new IllegalArgumentException("La priorità " + priority + " non è valida" );
+        };
+        this.state= switch(state){
+            case "To Do" -> IssueState.TODO;
+            case "In Progress" -> IssueState.IN_PROGRESS;
+            case "Done" -> IssueState.DONE;
+            default -> throw new IllegalArgumentException("Stato non valido: " + state);
+        };
+
     }
 
     public int getId() {

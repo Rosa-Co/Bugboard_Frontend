@@ -1,7 +1,11 @@
 package com.unina.bugboardapp.model;
 
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
 
     public enum UserType {
@@ -13,11 +17,20 @@ public class User {
     private final String password;
     private final UserType type;
 
-    public User(String username, String password, UserType type) {
+    public User(@JsonProperty("email") String username,@JsonProperty("password") String password, @JsonProperty("isAdmin") boolean isAdmin) {
+        this.username = username;
+        this.password = password;
+        if(isAdmin) {
+            this.type = UserType.ADMIN;
+        }else{
+            this.type = UserType.NORMAL;
+        }
+    }
+    /*public User(String username, String password, UserType type) {
         this.username = username;
         this.password = password;
         this.type = type;
-    }
+    }*/
 
     public String getUsername() {
         return username;

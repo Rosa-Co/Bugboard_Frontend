@@ -203,7 +203,9 @@ public class AppController {
 
         //users.add(new User(normalizedEmail, password, type));
         //System.out.println("New user created: " + normalizedEmail + " (" + type + ")");
-        User newUser= new User(normalizedEmail,password,type);
+        boolean isAdmin=false;
+        if(type==User.UserType.ADMIN) isAdmin=true;
+        User newUser= new User(normalizedEmail,password,isAdmin);
         new Thread(() -> {
             try {
                 backendService.createUser(newUser);
@@ -229,7 +231,7 @@ public class AppController {
      * @throws IllegalArgumentException if invalid parameters
      */
     public void createIssue(String title, String description, Issue.IssueType type,
-            Issue.Priority priority, String imagePath) {
+            Issue.Priority priority, String imagePath, Issue.IssueState state) {
         if (!isLoggedIn()) {
             throw new IllegalStateException("User must be logged in to create issues");
         }
@@ -246,13 +248,16 @@ public class AppController {
             throw new IllegalArgumentException("Issue type and priority cannot be null");
         }
 
-        Issue issue = new Issue(title.trim(), description.trim(), type, priority, loggedUser);
+        //Issue issue = new Issue(title.trim(), description.trim(), type.toString(), priority.toString(), loggedUser,);
 
-        if (imagePath != null && !imagePath.trim().isEmpty()) {
+        /*if (imagePath != null && !imagePath.trim().isEmpty()) {
             issue.setImagePath(imagePath.trim());
-        }
+        }*/
 
-        Issue newIssue = new Issue(title, description, type, priority, loggedUser);
+        Issue newIssue = new Issue(title, description, type.toString(), priority.toString(), loggedUser, state.toString());
+        if (imagePath != null && !imagePath.trim().isEmpty()) {
+            newIssue.setImagePath(imagePath.trim());
+        }
         new Thread(() -> {
             try {
                 backendService.createIssue(newIssue);
@@ -264,6 +269,7 @@ public class AppController {
                 e.printStackTrace();
             }
         }).start();
+
     }
 
     /**

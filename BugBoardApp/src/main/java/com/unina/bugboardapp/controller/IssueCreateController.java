@@ -53,7 +53,8 @@ public class IssueCreateController {
                 descriptionArea.getText(),
                 typeCombo.getValue(),
                 priorityCombo.getValue(),
-                imagePathField.getText());
+                imagePathField.getText(),
+                Issue.IssueState.TODO);
         closeWindow();
     }
 
