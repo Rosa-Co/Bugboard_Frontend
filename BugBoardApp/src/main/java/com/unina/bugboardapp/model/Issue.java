@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Issue {
 
     public enum IssueType {
@@ -73,9 +74,7 @@ public class Issue {
         }
     }
 
-    private static int idCounter = 1;
-
-    private final int id;
+    private int id;
     private String title;
     private String description;
     private IssueType type;
@@ -86,30 +85,29 @@ public class Issue {
     private String imagePath; // Optional
     private final List<Comment> comments;
 
-    public Issue(@JsonProperty("titolo") String title,@JsonProperty("descrizione") String description,@JsonProperty("tipologia") String type, String priority,@JsonProperty("creataDa") User reporter,@JsonProperty("stato") String state) throws IllegalArgumentException {
-        this.id= idCounter++;
+    public Issue(@JsonProperty("titolo") String title,@JsonProperty("descrizione") String description,@JsonProperty("tipologia") String type,@JsonProperty("priorita") String priority,@JsonProperty("creataDa") User reporter,@JsonProperty("stato") String state) throws IllegalArgumentException {
         this.title= title;
         this.description= description;
         this.reporter= reporter;
         this.createdAt= LocalDateTime.now();
         this.comments= new ArrayList<>();
-        this.type= switch(type){
-            case "Question" -> IssueType.QUESTION;
-            case "Bug" -> IssueType.BUG;
-            case "Documentation" -> IssueType.DOCUMENTATION;
-            case "Feature" -> IssueType.FEATURE;
+        this.type= switch(type.toUpperCase()){
+            case "QUESTION" -> IssueType.QUESTION;
+            case "BUG" -> IssueType.BUG;
+            case "DOCUMENTATION" -> IssueType.DOCUMENTATION;
+            case "FEATURE" -> IssueType.FEATURE;
             default -> throw new IllegalArgumentException("Tipo non valido: " + type);
         };
-        this.priority= switch(priority){
-            case "Low" -> Priority.LOW;
-            case "Medium" -> Priority.MEDIUM;
-            case "High" -> Priority.HIGH;
+        this.priority= switch(priority.toUpperCase()){
+            case "LOW" -> Priority.LOW;
+            case "MEDIUM" -> Priority.MEDIUM;
+            case "HIGH" -> Priority.HIGH;
             default -> throw new IllegalArgumentException("La priorità " + priority + " non è valida" );
         };
-        this.state= switch(state){
-            case "To Do" -> IssueState.TODO;
-            case "In Progress" -> IssueState.IN_PROGRESS;
-            case "Done" -> IssueState.DONE;
+        this.state= switch(state.toUpperCase()){
+            case "TO DO" -> IssueState.TODO;
+            case "IN PROGRESS" -> IssueState.IN_PROGRESS;
+            case "DONE" -> IssueState.DONE;
             default -> throw new IllegalArgumentException("Stato non valido: " + state);
         };
 
