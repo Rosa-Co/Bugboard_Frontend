@@ -3,9 +3,11 @@ package com.unina.bugboardapp.controller;
 import com.unina.bugboardapp.model.Comment;
 import com.unina.bugboardapp.model.Issue;
 import com.unina.bugboardapp.model.User;
+import com.unina.bugboardapp.service.BackendService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,7 @@ public class AppController {
 
     // Observable collections for reactive UI updates
     private final ObservableList<User> users;
+    private final BackendService backendService;
     private final ObservableList<Issue> issues;
     private User loggedUser;
 
@@ -28,7 +31,8 @@ public class AppController {
     private AppController() {
         users = FXCollections.observableArrayList();
         issues = FXCollections.observableArrayList();
-        initMockData();
+        //initMockData();
+        backendService= new BackendService();
     }
 
     /**
@@ -44,9 +48,7 @@ public class AppController {
         return instance;
     }
 
-    /**
-     * Initializes mock data for testing and demonstration
-     */
+    /*
     private void initMockData() {
         try {
             // Default Admin
@@ -89,12 +91,7 @@ public class AppController {
         }
     }
 
-    /**
-     * Authenticates a user with email and password
-     * 
-     * @param email    User's email address
-     * @param password User's password
-     * @return true if authentication successful, false otherwise
+
      */
     public boolean login(String email, String password) {
         if (email == null || email.trim().isEmpty() || password == null || password.isEmpty()) {
@@ -102,18 +99,37 @@ public class AppController {
             return false;
         }
 
-        Optional<User> user = users.stream()
-                .filter(u -> u.getUsername().equalsIgnoreCase(email.trim()) && u.checkPassword(password))
-                .findFirst();
+        try {
+            User user = backendService.login(email,password);
 
-        if (user.isPresent()) {
-            this.loggedUser = user.get();
-            System.out.println("User logged in: " + loggedUser.getUsername() + " (" + loggedUser.getType() + ")");
-            return true;
+            if (user!=null) {
+                this.loggedUser = user;
+                refreshData();
+                System.out.println("User logged in: " + loggedUser.getUsername() + " (" + loggedUser.getType() + ")");
+                return true;
+            }
+        }catch(Exception e){
+            e.printStackTrace();
         }
-
         System.err.println("Login failed: Invalid email or password");
         return false;
+    }
+
+    public void refreshData() {
+        new Thread(() -> {
+            try {
+                List<Issue> realIssues = backendService.fetchAllIssues();
+
+                javafx.application.Platform.runLater(() -> {
+                    issues.clear();
+                    issues.addAll(realIssues);
+                    System.out.println("Dati aggiornati dal backend!");
+                });
+
+            } catch (Exception e) {
+                System.err.println("Impossibile scaricare le issue: " + e.getMessage());
+            }
+        }).start();
     }
 
     /**
@@ -185,8 +201,20 @@ public class AppController {
             throw new IllegalArgumentException("User with this email already exists");
         }
 
-        users.add(new User(normalizedEmail, password, type));
-        System.out.println("New user created: " + normalizedEmail + " (" + type + ")");
+        //users.add(new User(normalizedEmail, password, type));
+        //System.out.println("New user created: " + normalizedEmail + " (" + type + ")");
+        User newUser= new User(normalizedEmail,password,type);
+        new Thread(() -> {
+            try {
+                backendService.createUser(newUser);
+                javafx.application.Platform.runLater(() -> {
+                    users.add(newUser);
+                    System.out.println("User creato su server e UI");
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     /**
@@ -224,8 +252,18 @@ public class AppController {
             issue.setImagePath(imagePath.trim());
         }
 
-        issues.add(issue);
-        System.out.println("New issue created: #" + issue.getId() + " - " + issue.getTitle());
+        Issue newIssue = new Issue(title, description, type, priority, loggedUser);
+        new Thread(() -> {
+            try {
+                backendService.createIssue(newIssue);
+                javafx.application.Platform.runLater(() -> {
+                    issues.add(newIssue);
+                    System.out.println("Issue creata su server e UI");
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     /**
@@ -249,8 +287,20 @@ public class AppController {
             throw new IllegalArgumentException("Comment content cannot be empty");
         }
 
-        issue.addComment(new Comment(loggedUser, content.trim()));
-        System.out.println("Comment added to issue #" + issue.getId());
+        //issue.addComment(new Comment(loggedUser, content.trim()));
+        //System.out.println("Comment added to issue #" + issue.getId());
+        Comment newComment= new Comment(loggedUser,content.trim());
+        new Thread(() -> {
+            try {
+                backendService.createComment(newComment);
+                javafx.application.Platform.runLater(() -> {
+                    issue.addComment(newComment);
+                    System.out.println("Commento creato su server e UI");
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     /**
