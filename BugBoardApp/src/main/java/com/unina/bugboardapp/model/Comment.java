@@ -1,61 +1,77 @@
 package com.unina.bugboardapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Represents a comment on an issue
  */
 public class Comment {
-    private final User author;
-    private final String content;
-    private final LocalDateTime timestamp;
+    private Integer id;
+    @JsonProperty("scrittoDa")
+    private User author;
+    @JsonProperty("appartiene")
+    private Issue issue;
+    @JsonProperty("descrizione")
+    private String content;
+    @JsonProperty("data")
+    private LocalDateTime timestamp;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm");
 
-    /**
-     * Creates a new comment
-     * 
-     * @param author  The user who wrote the comment
-     * @param content The comment text
-     */
-    public Comment(User author, String content) {
+
+    public Comment() {}
+    public Comment(User author, String content, Issue issue) {
         this.author = author;
         this.content = content;
+        this.issue=issue;
         this.timestamp = LocalDateTime.now();
     }
 
-    /**
-     * Gets the comment author
-     * 
-     * @return The User who wrote this comment
-     */
+    public Integer getId() {
+        return id;
+    }
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    @JsonProperty("scrittoDa")
     public User getAuthor() {
         return author;
     }
+    public void setAuthor(User author) {
+        this.author = author;
+    }
 
-    /**
-     * Gets the comment content
-     * 
-     * @return The comment text
-     */
+    @JsonProperty("appartiene")
+    public Issue getIssue() {
+        return issue;
+    }
+    public void setIssue(Issue issue) {
+        this.issue = issue;
+    }
+
+    @JsonProperty("descrizione")
     public String getContent() {
         return content;
     }
+    public void setContent(String content) {
+        this.content = content;
+    }
 
-    /**
-     * Gets the comment timestamp
-     * 
-     * @return The LocalDateTime when the comment was created
-     */
+    @JsonIgnore
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
-
-    /**
-     * Returns a formatted timestamp string
-     * 
-     * @return Formatted timestamp (e.g., "Dec 09, 2025 20:15")
-     */
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+    
+    @JsonIgnore
     public String getFormattedTimestamp() {
         return timestamp.format(FORMATTER);
     }
@@ -65,6 +81,7 @@ public class Comment {
      * 
      * @return Relative time string
      */
+    @JsonIgnore
     public String getRelativeTime() {
         LocalDateTime now = LocalDateTime.now();
         java.time.Duration duration = java.time.Duration.between(timestamp, now);

@@ -246,12 +246,12 @@ public class AppController {
 
         //issue.addComment(new Comment(loggedUser, content.trim()));
         //System.out.println("Comment added to issue #" + issue.getId());
-        Comment newComment= new Comment(loggedUser,content.trim());
+        Comment newComment= new Comment(loggedUser,content.trim(),issue);
         new Thread(() -> {
             try {
-                backendService.createComment(newComment);
+                Comment createdComment=backendService.createComment(newComment);
                 javafx.application.Platform.runLater(() -> {
-                    issue.addComment(newComment);
+                    issue.addComment(createdComment);
                     System.out.println("Commento creato su server e UI");
                 });
             } catch (Exception e) {

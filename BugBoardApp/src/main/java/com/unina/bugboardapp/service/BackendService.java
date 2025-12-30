@@ -77,12 +77,15 @@ public class BackendService {
 
     public Comment createComment(Comment newComment) throws Exception{
         String json= mapper.writeValueAsString(newComment);
+        System.out.println(json);
         HttpRequest request= HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/comments"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
+        System.out.println(request);
         HttpResponse<String> response= client.send(request,HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
         if (response.statusCode() != 200 && response.statusCode() != 201) {
             System.err.println("ERRORE DAL SERVER: " + response.body());
             throw new RuntimeException("Il server ha risposto con codice (" + response.statusCode() + "): " + response.body());
