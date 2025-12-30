@@ -2,6 +2,7 @@ package com.unina.bugboardapp.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -13,6 +14,7 @@ public class User {
         NORMAL
     }
 
+    private Integer id;
     private final String username; // treating email as username/id
     private final String password;
     private final UserType type;
@@ -27,17 +29,33 @@ public class User {
         }
     }
 
+    @JsonProperty("email")
     public String getUsername() {
         return username;
+    }
+    @JsonProperty("isAdmin")
+    public boolean isAdmin() {
+        return type == UserType.ADMIN;
     }
 
     public boolean checkPassword(String password) {
         // TODO : implement proper password hashing
         return this.password.equals(password);
     }
-
+    @JsonIgnore
     public UserType getType() {
         return type;
+    }
+
+    public String getPassword() {
+        return password;
+    }//?non so se si può fare...
+
+    public Integer getId() {
+        return id;
+    }
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     @Override
