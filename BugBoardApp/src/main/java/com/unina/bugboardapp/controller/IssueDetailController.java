@@ -3,6 +3,7 @@ package com.unina.bugboardapp.controller;
 import com.unina.bugboardapp.model.Comment;
 import com.unina.bugboardapp.model.Issue;
 
+import com.unina.bugboardapp.service.BackendService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -13,6 +14,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
+import java.util.List;
 
 public class IssueDetailController {
 
@@ -40,6 +42,7 @@ public class IssueDetailController {
     private TextArea commentArea;
 
     private Issue issue;
+    private final BackendService backendService=new BackendService();
 
     public void setIssue(Issue issue) {
         this.issue = issue;
@@ -83,11 +86,15 @@ public class IssueDetailController {
             imageContainer.setManaged(false);
         }
 
-        // Comments - Render as VBox children instead of ListView to avoid nested
-        // scrolling
         commentsList.getChildren().clear();
-        if (issue.getComments() != null) {
-            for (Comment comment : issue.getComments()) {
+        List<Comment> comments=null;
+        try{
+            comments = backendService.getAllComments(issue);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        if (comments != null) {
+            for (Comment comment : comments) {
                 VBox cell = new VBox(4);
                 cell.setStyle(
                         "-fx-padding: 10; -fx-background-color: -color-bg-default; -fx-background-radius: 6; -fx-border-color: -color-border-subtle; -fx-border-radius: 6;");
@@ -114,6 +121,6 @@ public class IssueDetailController {
 
         AppController.getInstance().addComment(issue, commentArea.getText());
         commentArea.clear();
-        updateUI(); // Refresh list
+        updateUI();
     }
 }

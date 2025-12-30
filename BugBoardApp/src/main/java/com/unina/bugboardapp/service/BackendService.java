@@ -93,6 +93,19 @@ public class BackendService {
         return mapper.readValue(response.body(),Comment.class);
     }
 
+    public List<Comment> getAllComments(Issue issue) throws Exception{
+        HttpRequest request= HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/issues/" + issue.getId() + "/comments"))
+                .GET()
+                .build();
+        HttpResponse<String> response= client.send(request,HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            System.err.println("ERRORE DAL SERVER: " + response.body());
+        }
+        ObjectMapper mapper= new ObjectMapper();
+        return mapper.readValue(response.body(), new TypeReference<List<Comment>>() {});
+    }
+
     public User login(String email, String password) throws Exception {
         String jsonBody = mapper.writeValueAsString(new UserLoginDTO(email, password));
 
