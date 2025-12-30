@@ -2,6 +2,8 @@ package com.unina.bugboardapp.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.unina.bugboardapp.model.Comment;
 import com.unina.bugboardapp.model.Issue;
 import com.unina.bugboardapp.model.User;
@@ -21,6 +23,8 @@ public class BackendService {
     public BackendService() {
         this.client = HttpClient.newHttpClient();
         this.mapper = new ObjectMapper();
+        this.mapper.registerModule(new JavaTimeModule());
+        this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     public List<Issue> fetchAllIssues() throws Exception {
@@ -34,18 +38,25 @@ public class BackendService {
         if (response.statusCode() == 200) {
             return mapper.readValue(response.body(), new TypeReference<List<Issue>>(){});
         } else {
-            throw new RuntimeException("Errore Backend: " + response.statusCode());
+            throw new RuntimeException("Errore Backend (" + response.statusCode() + "): " + response.body());
         }
     }
 
     public Issue createIssue(Issue newIssue) throws Exception{
         String json=mapper.writeValueAsString(newIssue);
+        System.out.println(json);//debug
         HttpRequest request= HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/issues"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
+        System.out.println(request);
         HttpResponse<String> response= client.send(request,HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+        if (response.statusCode() != 200 && response.statusCode() != 201) {
+            System.err.println("ERRORE DAL SERVER: " + response.body());
+            throw new RuntimeException("Il server ha risposto con codice (" + response.statusCode() + "): " + response.body());
+        }
         return mapper.readValue(response.body(), Issue.class);
     }
 
@@ -57,6 +68,10 @@ public class BackendService {
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
         HttpResponse<String> response= client.send(request,HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200 && response.statusCode() != 201) {
+            System.err.println("ERRORE DAL SERVER: " + response.body());
+            throw new RuntimeException("Il server ha risposto con codice (" + response.statusCode() + "): " + response.body());
+        }
         return mapper.readValue(response.body(), User.class);
     }
 
@@ -68,6 +83,10 @@ public class BackendService {
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
         HttpResponse<String> response= client.send(request,HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200 && response.statusCode() != 201) {
+            System.err.println("ERRORE DAL SERVER: " + response.body());
+            throw new RuntimeException("Il server ha risposto con codice (" + response.statusCode() + "): " + response.body());
+        }
         return mapper.readValue(response.body(),Comment.class);
     }
 

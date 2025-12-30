@@ -26,11 +26,6 @@ public class User {
             this.type = UserType.NORMAL;
         }
     }
-    /*public User(String username, String password, UserType type) {
-        this.username = username;
-        this.password = password;
-        this.type = type;
-    }*/
 
     public String getUsername() {
         return username;

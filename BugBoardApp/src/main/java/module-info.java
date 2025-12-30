@@ -5,6 +5,7 @@ module com.unina.bugboardapp {
     requires MaterialFX;
     requires atlantafx.base;
     requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.datatype.jsr310;
 
     opens com.unina.bugboardapp to javafx.fxml;
     opens com.unina.bugboardapp.controller to javafx.fxml;

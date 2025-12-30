@@ -48,51 +48,6 @@ public class AppController {
         return instance;
     }
 
-    /*
-    private void initMockData() {
-        try {
-            // Default Admin
-            users.add(new User("admin@bugboard.com", "admin", User.UserType.ADMIN));
-
-            // Default Normal User
-            User normalUser = new User("user@bugboard.com", "user", User.UserType.NORMAL);
-            users.add(normalUser);
-
-            // Mock Issues for demonstration
-            Issue issue1 = new Issue(
-                    "Login crashes on Windows 98",
-                    "When I try to login using Windows 98 SE, the app crashes.",
-                    Issue.IssueType.BUG,
-                    Issue.Priority.HIGH,
-                    normalUser);
-            issues.add(issue1);
-
-            Issue issue2 = new Issue(
-                    "Add Dark Mode",
-                    "My eyes hurt, please add dark mode.",
-                    Issue.IssueType.FEATURE,
-                    Issue.Priority.LOW,
-                    normalUser);
-            issues.add(issue2);
-
-            Issue issue3 = new Issue(
-                    "Update documentation for API v2",
-                    "The API documentation needs to be updated to reflect v2 changes.",
-                    Issue.IssueType.DOCUMENTATION,
-                    Issue.Priority.MEDIUM,
-                    normalUser);
-            issues.add(issue3);
-
-            System.out.println("Mock data initialized: " + users.size() + " users, " + issues.size() + " issues");
-
-        } catch (Exception e) {
-            System.err.println("Error initializing mock data: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-
-     */
     public boolean login(String email, String password) {
         if (email == null || email.trim().isEmpty() || password == null || password.isEmpty()) {
             System.err.println("Login failed: Invalid credentials provided");
@@ -203,8 +158,7 @@ public class AppController {
 
         //users.add(new User(normalizedEmail, password, type));
         //System.out.println("New user created: " + normalizedEmail + " (" + type + ")");
-        boolean isAdmin=false;
-        if(type==User.UserType.ADMIN) isAdmin=true;
+        boolean isAdmin= type == User.UserType.ADMIN;
         User newUser= new User(normalizedEmail,password,isAdmin);
         new Thread(() -> {
             try {
@@ -244,28 +198,25 @@ public class AppController {
             throw new IllegalArgumentException("Issue description cannot be empty");
         }
 
-        if (type == null || priority == null) {
-            throw new IllegalArgumentException("Issue type and priority cannot be null");
+        if (type == null || priority == null || state == null) {
+            throw new IllegalArgumentException("Issue type, state and priority cannot be null");
         }
 
-        //Issue issue = new Issue(title.trim(), description.trim(), type.toString(), priority.toString(), loggedUser,);
-
-        /*if (imagePath != null && !imagePath.trim().isEmpty()) {
-            issue.setImagePath(imagePath.trim());
-        }*/
-
-        Issue newIssue = new Issue(title, description, type.toString(), priority.toString(), loggedUser, state.toString());
+        Issue newIssue = new Issue(type.name(),title, description,null,state.name(),priority.name(), loggedUser);
         if (imagePath != null && !imagePath.trim().isEmpty()) {
             newIssue.setImagePath(imagePath.trim());
         }
+        newIssue.setCreatedAt(null);
+
         new Thread(() -> {
             try {
-                backendService.createIssue(newIssue);
+                Issue createdIssue= backendService.createIssue(newIssue);
                 javafx.application.Platform.runLater(() -> {
-                    issues.add(newIssue);
+                    issues.add(createdIssue);
                     System.out.println("Issue creata su server e UI");
                 });
             } catch (Exception e) {
+                System.err.println("Errore durante la creazione della Issue: " + e.getMessage());
                 e.printStackTrace();
             }
         }).start();

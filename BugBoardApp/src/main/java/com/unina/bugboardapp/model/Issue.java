@@ -3,9 +3,8 @@ package com.unina.bugboardapp.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import com.fasterxml.jackson.annotation.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Issue {
@@ -73,24 +72,40 @@ public class Issue {
             return label;
         }
     }
-
-    private int id;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JsonProperty("id")
+    private Integer id;
+    @JsonProperty("titolo")
     private String title;
+    @JsonProperty("descrizione")
     private String description;
+    @JsonProperty("tipologia")
     private IssueType type;
+    @JsonProperty("priorita")
     private Priority priority;
+    @JsonProperty("stato")
     private IssueState state;
-    private final User reporter;
-    private final LocalDateTime createdAt;
+    @JsonProperty("creataDa")
+    private User reporter;
+    @JsonIgnore
+    private LocalDateTime createdAt;
+    @JsonProperty("img")
     private String imagePath; // Optional
-    private final List<Comment> comments;
+    @JsonIgnore
+    private List<Comment> comments;
 
-    public Issue(@JsonProperty("titolo") String title,@JsonProperty("descrizione") String description,@JsonProperty("tipologia") String type,@JsonProperty("priorita") String priority,@JsonProperty("creataDa") User reporter,@JsonProperty("stato") String state) throws IllegalArgumentException {
+    public Issue() {
+        this.comments = new ArrayList<>();
+    }
+
+
+    public Issue(@JsonProperty("tipologia") String type,@JsonProperty("titolo") String title,@JsonProperty("descrizione") String description,@JsonProperty("img") String img ,@JsonProperty("stato") String state,@JsonProperty("priorita") String priority,@JsonProperty("creataDa") User reporter) throws IllegalArgumentException {
         this.title= title;
         this.description= description;
         this.reporter= reporter;
         this.createdAt= LocalDateTime.now();
         this.comments= new ArrayList<>();
+        this.imagePath= img;
         this.type= switch(type.toUpperCase()){
             case "QUESTION" -> IssueType.QUESTION;
             case "BUG" -> IssueType.BUG;
@@ -104,17 +119,20 @@ public class Issue {
             case "HIGH" -> Priority.HIGH;
             default -> throw new IllegalArgumentException("La priorità " + priority + " non è valida" );
         };
-        this.state= switch(state.toUpperCase()){
-            case "TO DO" -> IssueState.TODO;
-            case "IN PROGRESS" -> IssueState.IN_PROGRESS;
+        this.state= switch(state.toUpperCase().replace(" ", "_")){
+            case "TODO" -> IssueState.TODO;
+            case "IN_PROGRESS" -> IssueState.IN_PROGRESS;
             case "DONE" -> IssueState.DONE;
             default -> throw new IllegalArgumentException("Stato non valido: " + state);
         };
-
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -143,6 +161,10 @@ public class Issue {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public String getImagePath() {
@@ -177,7 +199,14 @@ public class Issue {
         return comments;
     }
 
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
     public void addComment(Comment comment) {
+        if (this.comments == null) {
+            this.comments = new ArrayList<>();
+        }
         this.comments.add(comment);
     }
 }
