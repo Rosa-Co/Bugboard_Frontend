@@ -89,7 +89,7 @@ public class IssueDetailController {
         commentsList.getChildren().clear();
         List<Comment> comments=null;
         try{
-            comments = backendService.getAllComments(issue);
+            comments = backendService.getCommentsByIssueId(issue.getId());
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -112,6 +112,25 @@ public class IssueDetailController {
                 commentsList.getChildren().add(cell);
             }
         }
+        /*commentsList.getChildren().clear();
+
+        if (issue.getComments() != null) {
+            for (Comment comment : issue.getComments()) {
+                VBox cell = new VBox(4);
+                cell.setStyle(
+                        "-fx-padding: 10; -fx-background-color: -color-bg-default; -fx-background-radius: 6; -fx-border-color: -color-border-subtle; -fx-border-radius: 6;");
+                Label header = new Label(comment.getAuthor().getUsername() + " · " + comment.getRelativeTime());
+
+                header.setStyle("-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: -color-fg-muted;");
+
+                Label content = new Label(comment.getContent());
+                content.setWrapText(true);
+                content.setStyle("-fx-font-size: 14; -fx-text-fill: -color-fg-default;");
+
+                cell.getChildren().addAll(header, content);
+                commentsList.getChildren().add(cell);
+            }
+        }*/
     }
 
     @FXML

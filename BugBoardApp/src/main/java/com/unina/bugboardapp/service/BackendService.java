@@ -93,9 +93,9 @@ public class BackendService {
         return mapper.readValue(response.body(),Comment.class);
     }
 
-    public List<Comment> getAllComments(Issue issue) throws Exception{
+    /*public List<Comment> getAllComments(Issue issue) throws Exception{
         HttpRequest request= HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/issues/" + issue.getId() + "/comments"))
+                .uri(URI.create(BASE_URL + "/comments" + "/issues/" + issue.getId() ))
                 .GET()
                 .build();
         HttpResponse<String> response= client.send(request,HttpResponse.BodyHandlers.ofString());
@@ -104,6 +104,19 @@ public class BackendService {
         }
         ObjectMapper mapper= new ObjectMapper();
         return mapper.readValue(response.body(), new TypeReference<List<Comment>>() {});
+    }*/
+
+    public List<Comment> getCommentsByIssueId(Integer issueId) throws Exception{
+        HttpRequest request= HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/comments" + "/issue/" + issueId ))
+                .GET()
+                .build();
+        HttpResponse<String> response= client.send(request,HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            System.err.println("ERRORE DAL SERVER: " + response.body());
+            throw new RuntimeException("Il server ha risposto con codice (" + response.statusCode() + "): " + response.body());
+        }
+        return mapper.readValue(response.body(),new TypeReference<List<Comment>>() {});
     }
 
     public User login(String email, String password) throws Exception {
