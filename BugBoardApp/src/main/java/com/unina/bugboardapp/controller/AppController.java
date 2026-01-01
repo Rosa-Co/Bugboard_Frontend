@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -231,7 +232,7 @@ public class AppController {
      * @throws IllegalStateException    if user is not logged in
      * @throws IllegalArgumentException if invalid parameters
      */
-    public void addComment(Issue issue, String content) {
+    public void addComment(Issue issue, String content, Consumer<Comment> onSuccess) {
         if (!isLoggedIn()) {
             throw new IllegalStateException("User must be logged in to add comments");
         }
@@ -253,6 +254,7 @@ public class AppController {
                 javafx.application.Platform.runLater(() -> {
                     issue.addComment(createdComment);
                     System.out.println("Commento creato su server e UI");
+                    if(onSuccess!=null) onSuccess.accept(createdComment);
                 });
             } catch (Exception e) {
                 e.printStackTrace();

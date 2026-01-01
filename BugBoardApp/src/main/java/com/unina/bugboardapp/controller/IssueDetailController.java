@@ -61,15 +61,12 @@ public class IssueDetailController {
         dateLabel.setText(issue.getCreatedAt().toLocalDate().toString());
         descriptionLabel.setText(issue.getDescription());
 
-        // Image
         if (issue.getImagePath() != null && !issue.getImagePath().isEmpty()) {
             try {
-                // Try to load image
                 File file = new File(issue.getImagePath());
                 if (file.exists()) {
                     imageView.setImage(new Image(file.toURI().toString()));
                 } else {
-                    // Try as URL? or just ignore
                     if (issue.getImagePath().startsWith("http")) {
                         imageView.setImage(new Image(issue.getImagePath()));
                     } else {
@@ -138,8 +135,9 @@ public class IssueDetailController {
         if (issue == null || commentArea.getText().trim().isEmpty())
             return;
 
-        AppController.getInstance().addComment(issue, commentArea.getText());
-        commentArea.clear();
-        updateUI();
+        AppController.getInstance().addComment(issue, commentArea.getText(),
+                (createdComment)->{ commentArea.clear(); updateUI();});
+        //commentArea.clear();
+        //updateUI();
     }
 }
