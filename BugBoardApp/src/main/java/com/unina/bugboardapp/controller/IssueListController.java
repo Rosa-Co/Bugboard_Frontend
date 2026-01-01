@@ -52,7 +52,7 @@ public class IssueListController {
     @FXML
     private TableColumn<Issue, String> colDate;
 
-    private ObservableList<Issue> masterData;
+    private ObservableList<Issue> masterData= FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
@@ -101,7 +101,34 @@ public class IssueListController {
             });
             return row;
         });
+        loadIssuesAsync();//?
     }
+
+    private void loadIssuesAsync() {
+        new Thread(() -> {
+            try {
+                // Esegui la chiamata al server (LENTA) qui nel background thread
+                // Nota: Assumo che getAllIssues restituisca una List<Issue> o ObservableList<Issue>
+                var issuesDalServer = AppController.getInstance().getAllIssues();
+
+                // Aggiorna l'interfaccia nel thread JavaFX
+                javafx.application.Platform.runLater(() -> {
+                    masterData.clear(); // Pulisci eventuali dati vecchi
+                    masterData.addAll(issuesDalServer); // Aggiungi i nuovi dati
+
+                    // Se la lista è ancora vuota dopo il caricamento, cambia il placeholder
+                    if (masterData.isEmpty()) {
+                        issueTable.setPlaceholder(new javafx.scene.control.Label("Nessuna issue trovata."));
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                javafx.application.Platform.runLater(() -> {
+                    issueTable.setPlaceholder(new javafx.scene.control.Label("Errore di connessione col server."));
+                });
+            }
+        }).start();
+    }//?
 
     private boolean isMatch(Issue issue, String searchText, Issue.IssueType type, Issue.IssueState state) {
         boolean matchText = true;

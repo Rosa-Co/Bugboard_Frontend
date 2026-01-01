@@ -4,6 +4,7 @@ import com.unina.bugboardapp.model.Comment;
 import com.unina.bugboardapp.model.Issue;
 
 import com.unina.bugboardapp.service.BackendService;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -50,8 +51,7 @@ public class IssueDetailController {
     }
 
     private void updateUI() {
-        if (issue == null)
-            return;
+        if (issue == null) return;
 
         titleLabel.setText(issue.getTitle());
         typeLabel.setText(issue.getType().toString());
@@ -70,65 +70,53 @@ public class IssueDetailController {
                     if (issue.getImagePath().startsWith("http")) {
                         imageView.setImage(new Image(issue.getImagePath()));
                     } else {
-                        imageContainer.setVisible(false);
-                        imageContainer.setManaged(false);
+                        hideImage();
                     }
                 }
             } catch (Exception e) {
-                imageContainer.setVisible(false);
-                imageContainer.setManaged(false);
+                hideImage();
             }
         } else {
-            imageContainer.setVisible(false);
-            imageContainer.setManaged(false);
+            hideImage();
         }
 
         commentsList.getChildren().clear();
-        List<Comment> comments=null;
+        List<Comment> comments;
         try{
             comments = backendService.getCommentsByIssueId(issue.getId());
         }catch(Exception e){
-            e.printStackTrace();
+            throw new RuntimeException("Error retrieving comments for issue " + issue.getId(), e);
         }
         if (comments != null) {
             for (Comment comment : comments) {
-                VBox cell = new VBox(4);
-                cell.setStyle(
-                        "-fx-padding: 10; -fx-background-color: -color-bg-default; -fx-background-radius: 6; -fx-border-color: -color-border-subtle; -fx-border-radius: 6;");
-
-                // Author and time
-                Label header = new Label(comment.getAuthor().getUsername() + " · " + comment.getRelativeTime());
-                header.setStyle("-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: -color-fg-muted;");
-
-                // Comment content
-                Label content = new Label(comment.getContent());
-                content.setWrapText(true);
-                content.setStyle("-fx-font-size: 14; -fx-text-fill: -color-fg-default;");
-
-                cell.getChildren().addAll(header, content);
-                commentsList.getChildren().add(cell);
+                addCommentToVBox(comment);
             }
         }
-        /*commentsList.getChildren().clear();
-
-        if (issue.getComments() != null) {
-            for (Comment comment : issue.getComments()) {
-                VBox cell = new VBox(4);
-                cell.setStyle(
-                        "-fx-padding: 10; -fx-background-color: -color-bg-default; -fx-background-radius: 6; -fx-border-color: -color-border-subtle; -fx-border-radius: 6;");
-                Label header = new Label(comment.getAuthor().getUsername() + " · " + comment.getRelativeTime());
-
-                header.setStyle("-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: -color-fg-muted;");
-
-                Label content = new Label(comment.getContent());
-                content.setWrapText(true);
-                content.setStyle("-fx-font-size: 14; -fx-text-fill: -color-fg-default;");
-
-                cell.getChildren().addAll(header, content);
-                commentsList.getChildren().add(cell);
-            }
-        }*/
+        //loadCommentsAsync();
     }
+
+    private void hideImage() {
+        imageContainer.setVisible(false);
+        imageContainer.setManaged(false);
+    }
+
+    /*private void loadCommentsAsync(){
+        new Thread(() -> {
+            List<Comment> comments;
+            try{
+                comments = backendService.getCommentsByIssueId(issue.getId());
+                Platform.runLater(() -> {
+                    commentsList.getChildren().clear();
+                    if(comments.isEmpty()) commentsList.getChildren().add(new Label("Nessun commento presente."));
+                    for (Comment comment : comments) {
+                        addCommentToVBox(comment);
+                    }
+                });
+            }catch(Exception e){
+                Platform.runLater(() -> commentsList.getChildren().add(new Label("Errore caricamento commenti.")));
+            }
+        });
+    }*/
 
     @FXML
     void onAddComment(ActionEvent event) {
@@ -136,8 +124,22 @@ public class IssueDetailController {
             return;
 
         AppController.getInstance().addComment(issue, commentArea.getText(),
-                (createdComment)->{ commentArea.clear(); updateUI();});
-        //commentArea.clear();
-        //updateUI();
+                (createdComment)->{ commentArea.clear(); addCommentToVBox(createdComment);});
+
+    }
+
+    private void addCommentToVBox(Comment comment) {
+        VBox cell = new VBox(4);
+        cell.setStyle("-fx-padding: 10; -fx-background-color: -color-bg-default; -fx-background-radius: 6; -fx-border-color: -color-border-subtle; -fx-border-radius: 6;");
+
+        Label header = new Label(comment.getAuthor().getUsername() + " · " + comment.getRelativeTime());
+        header.setStyle("-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: -color-fg-muted;");
+
+        Label content = new Label(comment.getContent());
+        content.setWrapText(true);
+        content.setStyle("-fx-font-size: 14; -fx-text-fill: -color-fg-default;");
+
+        cell.getChildren().addAll(header, content);
+        commentsList.getChildren().add(cell);
     }
 }

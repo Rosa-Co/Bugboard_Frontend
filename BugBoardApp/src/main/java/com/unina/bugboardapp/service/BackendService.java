@@ -121,7 +121,7 @@ public class BackendService {
 
     public User login(String email, String password) throws Exception {
         String jsonBody = mapper.writeValueAsString(new UserLoginDTO(email, password));
-
+        System.out.println(jsonBody);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/users/login"))
                 .header("Content-Type", "application/json")
@@ -129,7 +129,7 @@ public class BackendService {
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
+        System.out.println(response.body());
         if (response.statusCode() == 200) {
             return mapper.readValue(response.body(), User.class);
         } else {
