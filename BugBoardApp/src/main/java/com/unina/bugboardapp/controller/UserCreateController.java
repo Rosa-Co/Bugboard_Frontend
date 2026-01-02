@@ -22,7 +22,7 @@ public class UserCreateController {
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
 
-    private static final int MIN_PASSWORD_LENGTH = 3;
+    private static final int MIN_PASSWORD_LENGTH = 6;
 
     @FXML
     private TextField emailField;
@@ -36,7 +36,7 @@ public class UserCreateController {
     @FXML
     public void initialize() {
         typeCombo.setItems(FXCollections.observableArrayList(User.UserType.values()));
-        typeCombo.getSelectionModel().select(User.UserType.NORMAL);
+        typeCombo.getSelectionModel().select(User.UserType.USER);
     }
 
     @FXML

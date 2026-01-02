@@ -1,5 +1,6 @@
 package com.unina.bugboardapp.service;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -28,7 +29,7 @@ public class BackendService {
         this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
-    public String getTokenTest(){
+    public String getValidToken(){
         String token = SessionManager.getInstance().getToken();
         if(token == null || token.isEmpty())
             throw new RuntimeException("User non loggato");
@@ -38,6 +39,7 @@ public class BackendService {
     public List<Issue> fetchAllIssues() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/issues"))
+                .header("Authorization", "Bearer " + getValidToken())
                 .GET()
                 .build();
 
@@ -46,49 +48,54 @@ public class BackendService {
         if (response.statusCode() == 200) {
             return mapper.readValue(response.body(), new TypeReference<List<Issue>>(){});
         } else {
-            throw new RuntimeException("Errore Backend (" + response.statusCode() + "): " + response.body());
+            handleError(response);
+            return null;
         }
     }
 
     public Issue createIssue(Issue newIssue) throws Exception{
+        String token= getValidToken();
         String json=mapper.writeValueAsString(newIssue);
-        System.out.println(json);//debug
+        System.out.println(json);//?debug
         HttpRequest request= HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/issues"))
                 .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + token)
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
-        System.out.println(request);
+        System.out.println(request);//?debug
         HttpResponse<String> response= client.send(request,HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body());
+        System.out.println(response.body());//?debug
         if (response.statusCode() != 200 && response.statusCode() != 201) {
-            System.err.println("ERRORE DAL SERVER: " + response.body());
-            throw new RuntimeException("Il server ha risposto con codice (" + response.statusCode() + "): " + response.body());
+            handleError(response);
         }
         return mapper.readValue(response.body(), Issue.class);
     }
 
     public User createUser(User newUser) throws Exception{
+        String token= getValidToken();
         String json= mapper.writeValueAsString(newUser);
         HttpRequest request= HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/users"))
                 .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + token)
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
         HttpResponse<String> response= client.send(request,HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200 && response.statusCode() != 201) {
-            System.err.println("ERRORE DAL SERVER: " + response.body());
-            throw new RuntimeException("Il server ha risposto con codice (" + response.statusCode() + "): " + response.body());
+            handleError(response);
         }
         return mapper.readValue(response.body(), User.class);
     }
 
     public Comment createComment(Comment newComment) throws Exception{
+        String token= getValidToken();
         String json= mapper.writeValueAsString(newComment);
         System.out.println(json);
         HttpRequest request= HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/comments"))
                 .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + token)
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
         System.out.println(request);
@@ -115,8 +122,10 @@ public class BackendService {
     }*/
 
     public List<Comment> getCommentsByIssueId(Integer issueId) throws Exception{
+        String token= getValidToken();
         HttpRequest request= HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/comments" + "/issue/" + issueId ))
+                .header("Authorization", "Bearer " + token)
                 .GET()
                 .build();
         HttpResponse<String> response= client.send(request,HttpResponse.BodyHandlers.ofString());
@@ -132,16 +141,16 @@ public class BackendService {
         String jsonBody = mapper.writeValueAsString(user);
         System.out.println(jsonBody);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/users/login"))
+                .uri(URI.create(BASE_URL + "/auth/login"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
-
+        System.out.println(request);
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         System.out.println(response.body());
         if (response.statusCode() == 200) {
             LoginResponseDTO loginResponse = mapper.readValue(response.body(), LoginResponseDTO.class);
-            User newUser= new User(email,password,loginResponse.getType());
+            User newUser= new User(email,password,loginResponse.getRole());
             newUser.setId(loginResponse.getUserId());
             SessionManager.getInstance().login(newUser,loginResponse.getToken());
             return newUser;
@@ -152,6 +161,13 @@ public class BackendService {
         }
     }
 
+    public void handleError(HttpResponse<String> response) throws Exception {
+        if (response.statusCode() != 200 && response.statusCode() != 201) {
+            System.err.println("ERRORE DAL SERVER: " + response.body());
+            throw new RuntimeException("Il server ha risposto con codice (" + response.statusCode() + "): " + response.body());
+        }
+    }
+
     public static class UserLoginDTO {
         public String email;
         public String password;
@@ -159,18 +175,25 @@ public class BackendService {
     }//TODO sposta in un altro package
     public static class LoginResponseDTO {
         private String token;
+        @JsonProperty("id")
         private Integer userId;
         private String type;
+
         private String email;
         private List<String> roles;
 
         public LoginResponseDTO() {}
 
         public String getToken() { return token; }
+        @JsonProperty("id")
         public Integer getUserId() { return userId; }
         public String getType() { return type; }
         public String getEmail() { return email; }
         public List<String> getRoles() { return roles; }
+        public String getRole(){
+            if(getRoles().getFirst().contains("ADMIN")) return "ADMIN";
+            return "USER";
+        }
         public void setToken(String token) { this.token = token; }
         public void setUserId(Integer userId) { this.userId = userId; }
         public void setType(String type) { this.type = type; }

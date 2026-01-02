@@ -11,20 +11,23 @@ public class User {
 
     public enum UserType {
         ADMIN,
-        NORMAL
+        USER
     }
 
     private Integer id;
-    private final String username; // treating email as username/id
+    @JsonProperty("email")
+    private final String username;
+    @JsonProperty("password")
     private final String password;
+    @JsonProperty("role")
     private final UserType type;
 
-    public User(@JsonProperty("email") String username,@JsonProperty("password") String password,@JsonProperty("roles") String type) {
+    public User(@JsonProperty("email") String username,@JsonProperty("password") String password,@JsonProperty("role") String type) {
         this.username = username;
         this.password = password;
         this.type = switch(type.toUpperCase()){
             case "ADMIN" -> UserType.ADMIN;
-            default -> UserType.NORMAL;
+            default -> UserType.USER;
         };
     }
 
@@ -32,15 +35,11 @@ public class User {
     public String getUsername() {
         return username;
     }
-    @JsonProperty("isAdmin")
-    public boolean isAdmin() {
-        return type == UserType.ADMIN;
-    }
     public boolean checkPassword(String password) {
         // TODO : implement proper password hashing
         return this.password.equals(password);
     }
-    @JsonIgnore
+    @JsonProperty("role")
     public UserType getType() {
         return type;
     }

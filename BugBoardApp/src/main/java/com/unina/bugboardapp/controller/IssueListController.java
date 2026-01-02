@@ -107,16 +107,10 @@ public class IssueListController {
     private void loadIssuesAsync() {
         new Thread(() -> {
             try {
-                // Esegui la chiamata al server (LENTA) qui nel background thread
-                // Nota: Assumo che getAllIssues restituisca una List<Issue> o ObservableList<Issue>
                 var issuesDalServer = AppController.getInstance().getAllIssues();
-
-                // Aggiorna l'interfaccia nel thread JavaFX
                 javafx.application.Platform.runLater(() -> {
-                    masterData.clear(); // Pulisci eventuali dati vecchi
-                    masterData.addAll(issuesDalServer); // Aggiungi i nuovi dati
-
-                    // Se la lista è ancora vuota dopo il caricamento, cambia il placeholder
+                    masterData.clear();
+                    masterData.addAll(issuesDalServer);
                     if (masterData.isEmpty()) {
                         issueTable.setPlaceholder(new javafx.scene.control.Label("Nessuna issue trovata."));
                     }

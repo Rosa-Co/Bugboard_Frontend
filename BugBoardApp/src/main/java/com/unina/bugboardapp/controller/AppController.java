@@ -163,9 +163,9 @@ public class AppController {
         User newUser= new User(normalizedEmail,password,type.name());
         new Thread(() -> {
             try {
-                backendService.createUser(newUser);
+                User createdUser=backendService.createUser(newUser);
                 javafx.application.Platform.runLater(() -> {
-                    users.add(newUser);
+                    users.add(createdUser);
                     System.out.println("User creato su server e UI");
                 });
             } catch (Exception e) {
