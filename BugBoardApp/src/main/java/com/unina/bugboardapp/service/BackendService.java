@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.unina.bugboardapp.manager.SessionManager;
 import com.unina.bugboardapp.model.Comment;
 import com.unina.bugboardapp.model.Issue;
 import com.unina.bugboardapp.model.User;
@@ -25,6 +26,13 @@ public class BackendService {
         this.mapper = new ObjectMapper();
         this.mapper.registerModule(new JavaTimeModule());
         this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
+
+    public String getTokenTest(){
+        String token = SessionManager.getInstance().getToken();
+        if(token == null || token.isEmpty())
+            throw new RuntimeException("User non loggato");
+        return token;
     }
 
     public List<Issue> fetchAllIssues() throws Exception {
@@ -120,7 +128,8 @@ public class BackendService {
     }
 
     public User login(String email, String password) throws Exception {
-        String jsonBody = mapper.writeValueAsString(new UserLoginDTO(email, password));
+        UserLoginDTO user= new UserLoginDTO(email,password);
+        String jsonBody = mapper.writeValueAsString(user);
         System.out.println(jsonBody);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/users/login"))
@@ -131,15 +140,41 @@ public class BackendService {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         System.out.println(response.body());
         if (response.statusCode() == 200) {
-            return mapper.readValue(response.body(), User.class);
+            LoginResponseDTO loginResponse = mapper.readValue(response.body(), LoginResponseDTO.class);
+            User newUser= new User(email,password,loginResponse.getType());
+            newUser.setId(loginResponse.getUserId());
+            SessionManager.getInstance().login(newUser,loginResponse.getToken());
+            return newUser;
+            //return mapper.readValue(response.body(), User.class);
         } else {
+            System.err.println("Errore di autenticazione: " + response.body());
             return null;
         }
     }
 
-    private static class UserLoginDTO {
+    public static class UserLoginDTO {
         public String email;
         public String password;
         public UserLoginDTO(String e, String p) { this.email = e; this.password = p; }
-    }
+    }//TODO sposta in un altro package
+    public static class LoginResponseDTO {
+        private String token;
+        private Integer userId;
+        private String type;
+        private String email;
+        private List<String> roles;
+
+        public LoginResponseDTO() {}
+
+        public String getToken() { return token; }
+        public Integer getUserId() { return userId; }
+        public String getType() { return type; }
+        public String getEmail() { return email; }
+        public List<String> getRoles() { return roles; }
+        public void setToken(String token) { this.token = token; }
+        public void setUserId(Integer userId) { this.userId = userId; }
+        public void setType(String type) { this.type = type; }
+        public void setEmail(String email) { this.email = email; }
+        public void setRoles(List<String> roles) { this.roles = roles; }
+    }//TODO sposta in un altro package
 }

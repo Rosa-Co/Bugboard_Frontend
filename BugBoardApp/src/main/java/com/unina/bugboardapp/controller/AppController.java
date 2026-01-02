@@ -159,8 +159,8 @@ public class AppController {
 
         //users.add(new User(normalizedEmail, password, type));
         //System.out.println("New user created: " + normalizedEmail + " (" + type + ")");
-        boolean isAdmin= type == User.UserType.ADMIN;
-        User newUser= new User(normalizedEmail,password,isAdmin);
+        //boolean isAdmin= type == User.UserType.ADMIN;
+        User newUser= new User(normalizedEmail,password,type.name());
         new Thread(() -> {
             try {
                 backendService.createUser(newUser);

@@ -19,14 +19,13 @@ public class User {
     private final String password;
     private final UserType type;
 
-    public User(@JsonProperty("email") String username,@JsonProperty("password") String password, @JsonProperty("isAdmin") boolean isAdmin) {
+    public User(@JsonProperty("email") String username,@JsonProperty("password") String password,@JsonProperty("roles") String type) {
         this.username = username;
         this.password = password;
-        if(isAdmin) {
-            this.type = UserType.ADMIN;
-        }else{
-            this.type = UserType.NORMAL;
-        }
+        this.type = switch(type.toUpperCase()){
+            case "ADMIN" -> UserType.ADMIN;
+            default -> UserType.NORMAL;
+        };
     }
 
     @JsonProperty("email")
@@ -37,7 +36,6 @@ public class User {
     public boolean isAdmin() {
         return type == UserType.ADMIN;
     }
-
     public boolean checkPassword(String password) {
         // TODO : implement proper password hashing
         return this.password.equals(password);
