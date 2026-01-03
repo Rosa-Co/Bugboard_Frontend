@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
 public class AppController {
 
     private static AppController instance;
-
-    // Observable collections for reactive UI updates
     private final ObservableList<User> users;
     private final ObservableList<Issue> issues;
 
@@ -32,9 +30,6 @@ public class AppController {
 
     private User loggedUser;
 
-    /**
-     * Private constructor to enforce singleton pattern
-     */
     private AppController() {
         users = FXCollections.observableArrayList();
         issues = FXCollections.observableArrayList();
@@ -45,12 +40,6 @@ public class AppController {
         this.commentService = new CommentService();
     }
 
-    /**
-     * Returns the singleton instance of AppController
-     * Thread-safe implementation
-     * 
-     * @return The AppController instance
-     */
     public static synchronized AppController getInstance() {
         if (instance == null) {
             instance = new AppController();

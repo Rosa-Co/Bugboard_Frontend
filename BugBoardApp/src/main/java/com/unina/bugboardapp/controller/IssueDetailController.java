@@ -99,35 +99,12 @@ public class IssueDetailController {
                 addCommentToVBox(comment);
             }
         }
-        // loadCommentsAsync();
     }
 
     private void hideImage() {
         imageContainer.setVisible(false);
         imageContainer.setManaged(false);
     }
-
-    /*
-     * private void loadCommentsAsync(){
-     * new Thread(() -> {
-     * List<Comment> comments;
-     * try{
-     * comments = backendService.getCommentsByIssueId(issue.getId());
-     * Platform.runLater(() -> {
-     * commentsList.getChildren().clear();
-     * if(comments.isEmpty()) commentsList.getChildren().add(new
-     * Label("Nessun commento presente."));
-     * for (Comment comment : comments) {
-     * addCommentToVBox(comment);
-     * }
-     * });
-     * }catch(Exception e){
-     * Platform.runLater(() -> commentsList.getChildren().add(new
-     * Label("Errore caricamento commenti.")));
-     * }
-     * });
-     * }
-     */
 
     @FXML
     void onAddComment(ActionEvent event) {
