@@ -14,6 +14,7 @@
         <junit.version>5.9.2</junit.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <sonar.organization>rosa-co</sonar.organization>
     </properties>
 
     <dependencies>

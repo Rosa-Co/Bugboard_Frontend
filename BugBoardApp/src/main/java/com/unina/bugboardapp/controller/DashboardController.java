@@ -2,6 +2,7 @@ package com.unina.bugboardapp.controller;
 
 import com.unina.bugboardapp.StartApplication;
 import com.unina.bugboardapp.model.User;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -40,7 +41,7 @@ public class DashboardController {
             }
         }
         // Load default view (Issues)
-        onIssuesClick(null);
+        Platform.runLater(() -> onIssuesClick(null));
     }
 
     @FXML
@@ -76,10 +77,11 @@ public class DashboardController {
             Node view = loader.load();
             contentArea.getChildren().setAll(view);
         } catch (IOException e) {
-            // e.printStackTrace();
-            // Suppress error for now as views might not exist
+            System.err.println("Failed to load view: " + fxmlFile);
+            e.printStackTrace();
             contentArea.getChildren().clear();
             Label error = new Label("View not implemented yet: " + fxmlFile);
+            error.setStyle("-fx-font-weight: bold; -fx-text-fill: red; -fx-size: 16px;");
             contentArea.getChildren().add(error);
         }
     }

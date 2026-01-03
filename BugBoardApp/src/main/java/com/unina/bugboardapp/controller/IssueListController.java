@@ -12,11 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -52,77 +48,57 @@ public class IssueListController {
     @FXML
     private TableColumn<Issue, String> colDate;
 
-    private ObservableList<Issue> masterData= FXCollections.observableArrayList();
+    private final ObservableList<Issue> masterData= FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        // Setup Columns
+        setupColumns();
+        setupFiltersAndTable();
+        ObservableList<Issue> sourceList= AppController.getInstance().getAllIssues();
+        javafx.beans.binding.Bindings.bindContent(masterData, sourceList);
+    }
+
+    private void setupColumns() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
         colPriority.setCellValueFactory(new PropertyValueFactory<>("priority"));
         colState.setCellValueFactory(new PropertyValueFactory<>("state"));
-        colReporter.setCellValueFactory(
-                cellData -> new SimpleStringProperty(cellData.getValue().getReporter().getUsername()));
-        colDate.setCellValueFactory(
-                cellData -> new SimpleStringProperty(cellData.getValue().getCreatedAt().toString()));
+        colReporter.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getReporter().getUsername()));
+        colDate.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getCreatedAt().toString()));
+    }
 
-        // Setup Filters
+    private void setupFiltersAndTable() {
         typeFilter.setItems(FXCollections.observableArrayList(Issue.IssueType.values()));
         stateFilter.setItems(FXCollections.observableArrayList(Issue.IssueState.values()));
 
-        // Load Data
-        masterData = AppController.getInstance().getAllIssues();
+        // FilteredList avvolge la NOSTRA masterData (che non cambia mai riferimento)
         FilteredList<Issue> filteredData = new FilteredList<>(masterData, p -> true);
 
-        // Filter Logic
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredData.setPredicate(issue -> isMatch(issue, newValue, typeFilter.getValue(), stateFilter.getValue()));
-        });
-        typeFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
-            filteredData.setPredicate(issue -> isMatch(issue, searchField.getText(), newValue, stateFilter.getValue()));
-        });
-        stateFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
-            filteredData.setPredicate(issue -> isMatch(issue, searchField.getText(), typeFilter.getValue(), newValue));
-        });
+        searchField.textProperty().addListener((obs, oldVal, newVal) ->
+                filteredData.setPredicate(issue -> isMatch(issue, newVal, typeFilter.getValue(), stateFilter.getValue())));
+
+        typeFilter.valueProperty().addListener((obs, oldVal, newVal) ->
+                filteredData.setPredicate(issue -> isMatch(issue, searchField.getText(), newVal, stateFilter.getValue())));
+
+        stateFilter.valueProperty().addListener((obs, oldVal, newVal) ->
+                filteredData.setPredicate(issue -> isMatch(issue, searchField.getText(), typeFilter.getValue(), newVal)));
 
         SortedList<Issue> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(issueTable.comparatorProperty());
         issueTable.setItems(sortedData);
 
-        // Double click to open details
+        // Setup doppio click
         issueTable.setRowFactory(tv -> {
             TableRow<Issue> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    Issue rowData = row.getItem();
-                    openDetailView(rowData);
+                    openDetailView(row.getItem());
                 }
             });
             return row;
         });
-        loadIssuesAsync();//?
     }
-
-    private void loadIssuesAsync() {
-        new Thread(() -> {
-            try {
-                var issuesDalServer = AppController.getInstance().getAllIssues();
-                javafx.application.Platform.runLater(() -> {
-                    masterData.clear();
-                    masterData.addAll(issuesDalServer);
-                    if (masterData.isEmpty()) {
-                        issueTable.setPlaceholder(new javafx.scene.control.Label("Nessuna issue trovata."));
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                javafx.application.Platform.runLater(() -> {
-                    issueTable.setPlaceholder(new javafx.scene.control.Label("Errore di connessione col server."));
-                });
-            }
-        }).start();
-    }//?
 
     private boolean isMatch(Issue issue, String searchText, Issue.IssueType type, Issue.IssueState state) {
         boolean matchText = true;
