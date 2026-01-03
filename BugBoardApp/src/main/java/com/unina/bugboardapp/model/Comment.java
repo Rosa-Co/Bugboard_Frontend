@@ -12,11 +12,12 @@ import java.util.Map;
  * Represents a comment on an issue
  */
 public class Comment {
+    @JsonProperty("id")
     private Integer id;
     @JsonProperty("scrittoDa")
     private User author;
-    @JsonProperty("appartiene")
-    private Issue issue;
+    @JsonProperty("appartieneId")
+    private Integer issueId;
     @JsonProperty("descrizione")
     private String content;
     @JsonProperty("data")
@@ -25,13 +26,14 @@ public class Comment {
 
 
     public Comment() {}
-    public Comment(User author, String content, Issue issue) {
+    public Comment(User author, String content, Integer issueId) {
         this.author = author;
         this.content = content;
-        this.issue=issue;
+        this.issueId=issueId;
         this.timestamp = LocalDateTime.now();
     }
 
+    @JsonProperty("id")
     public Integer getId() {
         return id;
     }
@@ -47,12 +49,12 @@ public class Comment {
         this.author = author;
     }
 
-    @JsonProperty("appartiene")
-    public Issue getIssue() {
-        return issue;
+    @JsonProperty("appartieneId")
+    public Integer getIssueId() {
+        return issueId;
     }
-    public void setIssue(Issue issue) {
-        this.issue = issue;
+    public void setIssue(Integer issueId) {
+        this.issueId = issueId;
     }
 
     @JsonProperty("descrizione")

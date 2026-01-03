@@ -247,7 +247,7 @@ public class AppController {
 
         //issue.addComment(new Comment(loggedUser, content.trim()));
         //System.out.println("Comment added to issue #" + issue.getId());
-        Comment newComment= new Comment(loggedUser,content.trim(),issue);
+        Comment newComment= new Comment(loggedUser,content.trim(),issue.getId());
         new Thread(() -> {
             try {
                 Comment createdComment=backendService.createComment(newComment);
