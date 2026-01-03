@@ -14,6 +14,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -23,10 +25,9 @@ import java.util.regex.Pattern;
  * Handles user authentication and navigation to the dashboard
  */
 public class LoginController {
-
-    // Email validation pattern (RFC 5322 simplified)
+    private static final Logger logger = Logger.getLogger(LoginController.class.getName());
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
+            "^[a-zA-Z0-9_+&*-]++(?:\\.[a-zA-Z0-9_+&*-]++)*+@(?:[a-zA-Z0-9-]++\\.)++[a-zA-Z]{2,7}$");
 
     private static final int MIN_PASSWORD_LENGTH = 3;
     private static final String DASHBOARD_VIEW = "dashboard-view.fxml";
@@ -44,9 +45,7 @@ public class LoginController {
     @FXML
     private Button loginButton;
 
-    /**
-     * Initialize method called after FXML injection
-     */
+
     @FXML
     public void initialize() {
         // Hide error label initially
@@ -56,7 +55,6 @@ public class LoginController {
         // Add Enter key support
         passwordField.setOnAction(this::onLogin);
 
-        // Clear error when user starts typing
         emailField.textProperty().addListener((obs, oldVal, newVal) -> hideError());
         passwordField.textProperty().addListener((obs, oldVal, newVal) -> hideError());
     }
@@ -136,7 +134,9 @@ public class LoginController {
      * @return true if email is valid, false otherwise
      */
     private boolean isValidEmail(String email) {
-        return email != null && EMAIL_PATTERN.matcher(email).matches();
+        return email != null
+                && EMAIL_PATTERN.matcher(email).matches()
+                && email.length() <= 254;
     }
 
     /**
@@ -185,31 +185,31 @@ public class LoginController {
             Scene currentScene = ((Node) event.getSource()).getScene();
             Stage stage = (Stage) currentScene.getWindow();
 
-            // Create new scene
             Scene newScene = new Scene(root);
 
-            // Apply fade transition between scenes
-            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), currentScene.getRoot());
-            fadeOut.setFromValue(1.0);
-            fadeOut.setToValue(0.0);
-            fadeOut.setOnFinished(e -> {
-                stage.setScene(newScene);
-                stage.setTitle(DASHBOARD_TITLE);
-                stage.centerOnScreen();
-
-                // Fade in new scene
-                FadeTransition fadeIn = new FadeTransition(Duration.millis(300), newScene.getRoot());
-                fadeIn.setFromValue(0.0);
-                fadeIn.setToValue(1.0);
-                fadeIn.play();
-            });
+            FadeTransition fadeOut = createFadeTransition(currentScene, stage, newScene);
             fadeOut.play();
 
         } catch (IOException e) {
-            System.err.println("Failed to load dashboard: " + e.getMessage());
-            e.printStackTrace();
+            logger.log(Level.SEVERE,"Failed to load dashboard" , e);
             showError("Unable to load dashboard. Please try again.");
             loginButton.setDisable(false);
         }
+    }
+    private FadeTransition createFadeTransition(Scene currentScene, Stage stage, Scene newScene) {
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), currentScene.getRoot());
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished(e -> {
+            stage.setScene(newScene);
+            stage.setTitle(DASHBOARD_TITLE);
+            stage.centerOnScreen();
+
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), newScene.getRoot());
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            fadeIn.play();
+        });
+        return fadeOut;
     }
 }

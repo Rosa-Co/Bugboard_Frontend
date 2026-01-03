@@ -14,10 +14,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.io.IOException;
 
 public class DashboardController {
+    private static final Logger logger = Logger.getLogger(DashboardController.class.getName());
 
     @FXML
     private Label userInfoLabel;
@@ -53,7 +56,6 @@ public class DashboardController {
 
     @FXML
     void onUsersClick(ActionEvent event) {
-        // Load User Create View
         loadView("user-create-view.fxml");
     }
 
@@ -68,7 +70,7 @@ public class DashboardController {
             stage.setScene(loginScene);
             stage.setTitle("BugBoard");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE,"Failed to logout",e);
         }
     }
 
@@ -78,8 +80,7 @@ public class DashboardController {
             Node view = loader.load();
             contentArea.getChildren().setAll(view);
         } catch (IOException e) {
-            System.err.println("Failed to load view: " + fxmlFile);
-            e.printStackTrace();
+            logger.log(Level.SEVERE,"Failed to load view",e);
             contentArea.getChildren().clear();
             Label error = new Label("View not implemented yet: " + fxmlFile);
             error.setStyle("-fx-font-weight: bold; -fx-text-fill: red; -fx-size: 16px;");
