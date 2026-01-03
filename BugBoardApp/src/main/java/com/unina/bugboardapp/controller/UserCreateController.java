@@ -2,6 +2,7 @@ package com.unina.bugboardapp.controller;
 
 import com.unina.bugboardapp.StartApplication;
 import com.unina.bugboardapp.model.User;
+import com.unina.bugboardapp.model.UserType;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -31,12 +32,12 @@ public class UserCreateController {
     private PasswordField passwordField;
 
     @FXML
-    private ComboBox<User.UserType> typeCombo;
+    private ComboBox<UserType> typeCombo;
 
     @FXML
     public void initialize() {
-        typeCombo.setItems(FXCollections.observableArrayList(User.UserType.values()));
-        typeCombo.getSelectionModel().select(User.UserType.USER);
+        typeCombo.setItems(FXCollections.observableArrayList(UserType.values()));
+        typeCombo.getSelectionModel().select(UserType.USER);
     }
 
     @FXML
@@ -91,7 +92,7 @@ public class UserCreateController {
         try {
             // Otteniamo il contentArea dalla Dashboard risalendo dal nodo corrente
             StackPane contentArea = (StackPane) emailField.getScene().lookup("#contentArea");
-            
+
             if (contentArea != null) {
                 // Carichiamo la vista delle issue
                 FXMLLoader loader = new FXMLLoader(StartApplication.class.getResource("issue-list-view.fxml"));
@@ -121,11 +122,11 @@ public class UserCreateController {
     private record ValidationResult(boolean valid, String errorMessage) {
 
         static ValidationResult success() {
-                return new ValidationResult(true, null);
-            }
-
-            static ValidationResult error(String message) {
-                return new ValidationResult(false, message);
-            }
+            return new ValidationResult(true, null);
         }
+
+        static ValidationResult error(String message) {
+            return new ValidationResult(false, message);
+        }
+    }
 }

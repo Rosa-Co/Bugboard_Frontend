@@ -2,6 +2,9 @@ package com.unina.bugboardapp.controller;
 
 import com.unina.bugboardapp.StartApplication;
 import com.unina.bugboardapp.model.Issue;
+import com.unina.bugboardapp.model.IssueType;
+import com.unina.bugboardapp.model.Priority;
+import com.unina.bugboardapp.model.IssueState;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,10 +28,10 @@ public class IssueListController {
     private TextField searchField;
 
     @FXML
-    private ComboBox<Issue.IssueType> typeFilter;
+    private ComboBox<IssueType> typeFilter;
 
     @FXML
-    private ComboBox<Issue.IssueState> stateFilter;
+    private ComboBox<IssueState> stateFilter;
 
     @FXML
     private TableView<Issue> issueTable;
@@ -38,23 +41,23 @@ public class IssueListController {
     @FXML
     private TableColumn<Issue, String> colTitle;
     @FXML
-    private TableColumn<Issue, Issue.IssueType> colType;
+    private TableColumn<Issue, IssueType> colType;
     @FXML
-    private TableColumn<Issue, Issue.Priority> colPriority;
+    private TableColumn<Issue, Priority> colPriority;
     @FXML
-    private TableColumn<Issue, Issue.IssueState> colState;
+    private TableColumn<Issue, IssueState> colState;
     @FXML
     private TableColumn<Issue, String> colReporter;
     @FXML
     private TableColumn<Issue, String> colDate;
 
-    private final ObservableList<Issue> masterData= FXCollections.observableArrayList();
+    private final ObservableList<Issue> masterData = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
         setupColumns();
         setupFiltersAndTable();
-        ObservableList<Issue> sourceList= AppController.getInstance().getAllIssues();
+        ObservableList<Issue> sourceList = AppController.getInstance().getAllIssues();
         javafx.beans.binding.Bindings.bindContent(masterData, sourceList);
     }
 
@@ -65,24 +68,30 @@ public class IssueListController {
         colPriority.setCellValueFactory(new PropertyValueFactory<>("priority"));
         colState.setCellValueFactory(new PropertyValueFactory<>("state"));
         colReporter.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getReporter().getUsername()));
-        colDate.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getCreatedAt().toString()));
+        colDate.setCellValueFactory(cell -> {
+            if (cell.getValue().getCreatedAt() != null) {
+                return new SimpleStringProperty(cell.getValue().getCreatedAt().toString());
+            } else {
+                return new SimpleStringProperty("-");
+            }
+        });
     }
 
     private void setupFiltersAndTable() {
-        typeFilter.setItems(FXCollections.observableArrayList(Issue.IssueType.values()));
-        stateFilter.setItems(FXCollections.observableArrayList(Issue.IssueState.values()));
+        typeFilter.setItems(FXCollections.observableArrayList(IssueType.values()));
+        stateFilter.setItems(FXCollections.observableArrayList(IssueState.values()));
 
         // FilteredList avvolge la NOSTRA masterData (che non cambia mai riferimento)
         FilteredList<Issue> filteredData = new FilteredList<>(masterData, p -> true);
 
-        searchField.textProperty().addListener((obs, oldVal, newVal) ->
-                filteredData.setPredicate(issue -> isMatch(issue, newVal, typeFilter.getValue(), stateFilter.getValue())));
+        searchField.textProperty().addListener((obs, oldVal, newVal) -> filteredData
+                .setPredicate(issue -> isMatch(issue, newVal, typeFilter.getValue(), stateFilter.getValue())));
 
-        typeFilter.valueProperty().addListener((obs, oldVal, newVal) ->
-                filteredData.setPredicate(issue -> isMatch(issue, searchField.getText(), newVal, stateFilter.getValue())));
+        typeFilter.valueProperty().addListener((obs, oldVal, newVal) -> filteredData
+                .setPredicate(issue -> isMatch(issue, searchField.getText(), newVal, stateFilter.getValue())));
 
-        stateFilter.valueProperty().addListener((obs, oldVal, newVal) ->
-                filteredData.setPredicate(issue -> isMatch(issue, searchField.getText(), typeFilter.getValue(), newVal)));
+        stateFilter.valueProperty().addListener((obs, oldVal, newVal) -> filteredData
+                .setPredicate(issue -> isMatch(issue, searchField.getText(), typeFilter.getValue(), newVal)));
 
         SortedList<Issue> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(issueTable.comparatorProperty());
@@ -100,7 +109,7 @@ public class IssueListController {
         });
     }
 
-    private boolean isMatch(Issue issue, String searchText, Issue.IssueType type, Issue.IssueState state) {
+    private boolean isMatch(Issue issue, String searchText, IssueType type, IssueState state) {
         boolean matchText = true;
         if (searchText != null && !searchText.isEmpty()) {
             String lowerCaseFilter = searchText.toLowerCase();

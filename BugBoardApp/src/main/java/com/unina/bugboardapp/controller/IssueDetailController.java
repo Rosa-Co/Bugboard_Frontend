@@ -2,9 +2,11 @@ package com.unina.bugboardapp.controller;
 
 import com.unina.bugboardapp.model.Comment;
 import com.unina.bugboardapp.model.Issue;
+import com.unina.bugboardapp.model.IssueType;
+import com.unina.bugboardapp.model.Priority;
+import com.unina.bugboardapp.model.IssueState;
 
-import com.unina.bugboardapp.service.BackendService;
-import javafx.application.Platform;
+import com.unina.bugboardapp.service.CommentService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -43,7 +45,7 @@ public class IssueDetailController {
     private TextArea commentArea;
 
     private Issue issue;
-    private final BackendService backendService=new BackendService();
+    private final CommentService commentService = new CommentService();
 
     public void setIssue(Issue issue) {
         this.issue = issue;
@@ -51,14 +53,19 @@ public class IssueDetailController {
     }
 
     private void updateUI() {
-        if (issue == null) return;
+        if (issue == null)
+            return;
 
         titleLabel.setText(issue.getTitle());
         typeLabel.setText(issue.getType().toString());
         stateLabel.setText(issue.getState().toString());
         priorityLabel.setText(issue.getPriority().toString() + " Priority");
         reporterLabel.setText(issue.getReporter().getUsername());
-        dateLabel.setText(issue.getCreatedAt().toLocalDate().toString());
+        if (issue.getCreatedAt() != null) {
+            dateLabel.setText(issue.getCreatedAt().toLocalDate().toString());
+        } else {
+            dateLabel.setText("N/A");
+        }
         descriptionLabel.setText(issue.getDescription());
 
         if (issue.getImagePath() != null && !issue.getImagePath().isEmpty()) {
@@ -82,9 +89,9 @@ public class IssueDetailController {
 
         commentsList.getChildren().clear();
         List<Comment> comments;
-        try{
-            comments = backendService.getCommentsByIssueId(issue.getId());
-        }catch(Exception e){
+        try {
+            comments = commentService.getCommentsByIssueId(issue.getId());
+        } catch (Exception e) {
             throw new RuntimeException("Error retrieving comments for issue " + issue.getId(), e);
         }
         if (comments != null) {
@@ -92,7 +99,7 @@ public class IssueDetailController {
                 addCommentToVBox(comment);
             }
         }
-        //loadCommentsAsync();
+        // loadCommentsAsync();
     }
 
     private void hideImage() {
@@ -100,23 +107,27 @@ public class IssueDetailController {
         imageContainer.setManaged(false);
     }
 
-    /*private void loadCommentsAsync(){
-        new Thread(() -> {
-            List<Comment> comments;
-            try{
-                comments = backendService.getCommentsByIssueId(issue.getId());
-                Platform.runLater(() -> {
-                    commentsList.getChildren().clear();
-                    if(comments.isEmpty()) commentsList.getChildren().add(new Label("Nessun commento presente."));
-                    for (Comment comment : comments) {
-                        addCommentToVBox(comment);
-                    }
-                });
-            }catch(Exception e){
-                Platform.runLater(() -> commentsList.getChildren().add(new Label("Errore caricamento commenti.")));
-            }
-        });
-    }*/
+    /*
+     * private void loadCommentsAsync(){
+     * new Thread(() -> {
+     * List<Comment> comments;
+     * try{
+     * comments = backendService.getCommentsByIssueId(issue.getId());
+     * Platform.runLater(() -> {
+     * commentsList.getChildren().clear();
+     * if(comments.isEmpty()) commentsList.getChildren().add(new
+     * Label("Nessun commento presente."));
+     * for (Comment comment : comments) {
+     * addCommentToVBox(comment);
+     * }
+     * });
+     * }catch(Exception e){
+     * Platform.runLater(() -> commentsList.getChildren().add(new
+     * Label("Errore caricamento commenti.")));
+     * }
+     * });
+     * }
+     */
 
     @FXML
     void onAddComment(ActionEvent event) {
@@ -124,13 +135,17 @@ public class IssueDetailController {
             return;
 
         AppController.getInstance().addComment(issue, commentArea.getText(),
-                (createdComment)->{ commentArea.clear(); addCommentToVBox(createdComment);});
+                (createdComment) -> {
+                    commentArea.clear();
+                    addCommentToVBox(createdComment);
+                });
 
     }
 
     private void addCommentToVBox(Comment comment) {
         VBox cell = new VBox(4);
-        cell.setStyle("-fx-padding: 10; -fx-background-color: -color-bg-default; -fx-background-radius: 6; -fx-border-color: -color-border-subtle; -fx-border-radius: 6;");
+        cell.setStyle(
+                "-fx-padding: 10; -fx-background-color: -color-bg-default; -fx-background-radius: 6; -fx-border-color: -color-border-subtle; -fx-border-radius: 6;");
 
         Label header = new Label(comment.getAuthor().getUsername() + " · " + comment.getRelativeTime());
         header.setStyle("-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: -color-fg-muted;");

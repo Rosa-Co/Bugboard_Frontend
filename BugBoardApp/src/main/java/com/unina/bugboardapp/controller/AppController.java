@@ -1,14 +1,15 @@
 package com.unina.bugboardapp.controller;
 
 import com.unina.bugboardapp.model.Comment;
-import com.unina.bugboardapp.model.Issue;
-import com.unina.bugboardapp.model.User;
-import com.unina.bugboardapp.service.BackendService;
+import com.unina.bugboardapp.model.*;
+import com.unina.bugboardapp.service.AuthService;
+import com.unina.bugboardapp.service.CommentService;
+import com.unina.bugboardapp.service.IssueService;
+import com.unina.bugboardapp.service.UserService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -22,8 +23,13 @@ public class AppController {
 
     // Observable collections for reactive UI updates
     private final ObservableList<User> users;
-    private final BackendService backendService;
     private final ObservableList<Issue> issues;
+
+    private final AuthService authService;
+    private final IssueService issueService;
+    private final UserService userService;
+    private final CommentService commentService;
+
     private User loggedUser;
 
     /**
@@ -32,8 +38,11 @@ public class AppController {
     private AppController() {
         users = FXCollections.observableArrayList();
         issues = FXCollections.observableArrayList();
-        //initMockData();
-        backendService= new BackendService();
+
+        this.authService = new AuthService();
+        this.issueService = new IssueService();
+        this.userService = new UserService();
+        this.commentService = new CommentService();
     }
 
     /**
@@ -56,15 +65,15 @@ public class AppController {
         }
 
         try {
-            User user = backendService.login(email,password);
+            User user = authService.login(email, password);
 
-            if (user!=null) {
+            if (user != null) {
                 this.loggedUser = user;
                 refreshData();
                 System.out.println("User logged in: " + loggedUser.getUsername() + " (" + loggedUser.getType() + ")");
                 return true;
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         System.err.println("Login failed: Invalid email or password");
@@ -74,11 +83,13 @@ public class AppController {
     public void refreshData() {
         new Thread(() -> {
             try {
-                List<Issue> realIssues = backendService.fetchAllIssues();
+                List<Issue> realIssues = issueService.fetchAllIssues();
 
                 javafx.application.Platform.runLater(() -> {
                     issues.clear();
-                    issues.addAll(realIssues);
+                    if (realIssues != null) {
+                        issues.addAll(realIssues);
+                    }
                     System.out.println("Dati aggiornati dal backend!");
                 });
 
@@ -122,7 +133,7 @@ public class AppController {
      * @return true if current user is admin, false otherwise
      */
     public boolean isCurrentUserAdmin() {
-        return loggedUser != null && loggedUser.getType() == User.UserType.ADMIN;
+        return loggedUser != null && loggedUser.getType() == UserType.ADMIN;
     }
 
     /**
@@ -134,7 +145,7 @@ public class AppController {
      * @throws IllegalArgumentException if user already exists or invalid parameters
      * @throws IllegalStateException    if current user is not an admin
      */
-    public void createUser(String email, String password, User.UserType type) {
+    public void createUser(String email, String password, UserType type) {
         if (!isCurrentUserAdmin()) {
             throw new IllegalStateException("Only administrators can create users");
         }
@@ -157,16 +168,15 @@ public class AppController {
             throw new IllegalArgumentException("User with this email already exists");
         }
 
-        //users.add(new User(normalizedEmail, password, type));
-        //System.out.println("New user created: " + normalizedEmail + " (" + type + ")");
-        //boolean isAdmin= type == User.UserType.ADMIN;
-        User newUser= new User(normalizedEmail,password,type.name());
+        User newUser = new User(normalizedEmail, password, type);
         new Thread(() -> {
             try {
-                User createdUser=backendService.createUser(newUser);
+                User createdUser = userService.createUser(newUser);
                 javafx.application.Platform.runLater(() -> {
-                    users.add(createdUser);
-                    System.out.println("User creato su server e UI");
+                    if (createdUser != null) {
+                        users.add(createdUser);
+                        System.out.println("User creato su server e UI");
+                    }
                 });
             } catch (Exception e) {
                 e.printStackTrace();
@@ -185,8 +195,8 @@ public class AppController {
      * @throws IllegalStateException    if user is not logged in
      * @throws IllegalArgumentException if invalid parameters
      */
-    public void createIssue(String title, String description, Issue.IssueType type,
-            Issue.Priority priority, String imagePath, Issue.IssueState state) {
+    public void createIssue(String title, String description, IssueType type,
+            Priority priority, String imagePath, IssueState state) {
         if (!isLoggedIn()) {
             throw new IllegalStateException("User must be logged in to create issues");
         }
@@ -203,7 +213,7 @@ public class AppController {
             throw new IllegalArgumentException("Issue type, state and priority cannot be null");
         }
 
-        Issue newIssue = new Issue(type.name(),title, description,null,state.name(),priority.name(), loggedUser);
+        Issue newIssue = new Issue(type, title, description, null, state, priority, loggedUser);
         if (imagePath != null && !imagePath.trim().isEmpty()) {
             newIssue.setImagePath(imagePath.trim());
         }
@@ -211,10 +221,12 @@ public class AppController {
 
         new Thread(() -> {
             try {
-                Issue createdIssue= backendService.createIssue(newIssue);
+                Issue createdIssue = issueService.createIssue(newIssue);
                 javafx.application.Platform.runLater(() -> {
-                    issues.add(createdIssue);
-                    System.out.println("Issue creata su server e UI");
+                    if (createdIssue != null) {
+                        issues.add(createdIssue);
+                        System.out.println("Issue creata su server e UI");
+                    }
                 });
             } catch (Exception e) {
                 System.err.println("Errore durante la creazione della Issue: " + e.getMessage());
@@ -245,16 +257,32 @@ public class AppController {
             throw new IllegalArgumentException("Comment content cannot be empty");
         }
 
-        //issue.addComment(new Comment(loggedUser, content.trim()));
-        //System.out.println("Comment added to issue #" + issue.getId());
-        Comment newComment= new Comment(loggedUser,content.trim(),issue.getId());
+        Comment newComment = new Comment(loggedUser, content.trim(), issue.getId());
         new Thread(() -> {
             try {
-                Comment createdComment=backendService.createComment(newComment);
+                Comment createdComment = commentService.createComment(newComment);
                 javafx.application.Platform.runLater(() -> {
-                    issue.addComment(createdComment);
-                    System.out.println("Commento creato su server e UI");
-                    if(onSuccess!=null) onSuccess.accept(createdComment);
+                    if (createdComment != null) {
+                        issue.addComment(createdComment);
+                        System.out.println("Commento creato su server e UI");
+                        if (onSuccess != null)
+                            onSuccess.accept(createdComment);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    public void loadCommentsForIssue(Issue issue) {
+        new Thread(() -> {
+            try {
+                List<Comment> comments = commentService.getCommentsByIssueId(issue.getId());
+                javafx.application.Platform.runLater(() -> {
+                    if (comments != null) {
+                        issue.setComments(comments);
+                    }
                 });
             } catch (Exception e) {
                 e.printStackTrace();
@@ -286,7 +314,7 @@ public class AppController {
      * @param type Issue type to filter by (null returns all issues)
      * @return Filtered observable list of issues
      */
-    public ObservableList<Issue> getIssuesFiltered(Issue.IssueType type) {
+    public ObservableList<Issue> getIssuesFiltered(IssueType type) {
         if (type == null) {
             return FXCollections.observableArrayList(issues);
         }
@@ -302,7 +330,7 @@ public class AppController {
      * @param priority Priority to filter by
      * @return Filtered observable list of issues
      */
-    public ObservableList<Issue> getIssuesByPriority(Issue.Priority priority) {
+    public ObservableList<Issue> getIssuesByPriority(Priority priority) {
         if (priority == null) {
             return FXCollections.observableArrayList(issues);
         }
@@ -318,7 +346,7 @@ public class AppController {
      * @param state State to filter by
      * @return Filtered observable list of issues
      */
-    public ObservableList<Issue> getIssuesByState(Issue.IssueState state) {
+    public ObservableList<Issue> getIssuesByState(IssueState state) {
         if (state == null) {
             return FXCollections.observableArrayList(issues);
         }

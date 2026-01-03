@@ -9,36 +9,38 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
 
-    public enum UserType {
-        ADMIN,
-        USER
-    }
-
     private Integer id;
     @JsonProperty("email")
-    private final String username;
+    private String username;
     @JsonProperty("password")
     private final String password;
     @JsonProperty("role")
     private final UserType type;
 
-    public User(@JsonProperty("email") String username,@JsonProperty("password") String password,@JsonProperty("role") String type) {
+    public User() {
+        this.username = "";
+        this.password = "";
+        this.type = UserType.USER;
+    }
+
+    @JsonCreator
+    public User(@JsonProperty("email") String username,
+            @JsonProperty("password") String password,
+            @JsonProperty("role") UserType type) {
         this.username = username;
         this.password = password;
-        this.type = switch(type.toUpperCase()){
-            case "ADMIN" -> UserType.ADMIN;
-            default -> UserType.USER;
-        };
+        this.type = type != null ? type : UserType.USER;
     }
 
     @JsonProperty("email")
     public String getUsername() {
         return username;
     }
+
     public boolean checkPassword(String password) {
-        // TODO : implement proper password hashing
         return this.password.equals(password);
     }
+
     @JsonProperty("role")
     public UserType getType() {
         return type;
@@ -46,11 +48,12 @@ public class User {
 
     public String getPassword() {
         return password;
-    }//?non so se si può fare...
+    }// ?non so se si può fare...
 
     public Integer getId() {
         return id;
     }
+
     public void setId(Integer id) {
         this.id = id;
     }

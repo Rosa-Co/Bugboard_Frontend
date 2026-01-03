@@ -9,69 +9,6 @@ import com.fasterxml.jackson.annotation.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Issue {
 
-    public enum IssueType {
-        QUESTION("Question"),
-        BUG("Bug"),
-        DOCUMENTATION("Documentation"),
-        FEATURE("Feature");
-
-        private final String label;
-
-        IssueType(String label) {
-            this.label = label;
-        }
-
-        public String getLabel() {
-            return label;
-        }
-
-        @Override
-        public String toString() {
-            return label;
-        }
-    }
-
-    public enum Priority {
-        LOW("Low"),
-        MEDIUM("Medium"),
-        HIGH("High");
-
-        private final String label;
-
-        Priority(String label) {
-            this.label = label;
-        }
-
-        public String getLabel() {
-            return label;
-        }
-
-        @Override
-        public String toString() {
-            return label;
-        }
-    }
-
-    public enum IssueState {
-        TODO("To Do"),
-        IN_PROGRESS("In Progress"),
-        DONE("Done");
-
-        private final String label;
-
-        IssueState(String label) {
-            this.label = label;
-        }
-
-        public String getLabel() {
-            return label;
-        }
-
-        @Override
-        public String toString() {
-            return label;
-        }
-    }
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     @JsonProperty("id")
     private Integer id;
@@ -98,33 +35,17 @@ public class Issue {
         this.comments = new ArrayList<>();
     }
 
-
-    public Issue(@JsonProperty("tipologia") String type,@JsonProperty("titolo") String title,@JsonProperty("descrizione") String description,@JsonProperty("img") String img ,@JsonProperty("stato") String state,@JsonProperty("priorita") String priority,@JsonProperty("creataDa") User reporter) throws IllegalArgumentException {
-        this.title= title;
-        this.description= description;
-        this.reporter= reporter;
-        this.createdAt= LocalDateTime.now();
-        this.comments= new ArrayList<>();
-        this.imagePath= img;
-        this.type= switch(type.toUpperCase()){
-            case "QUESTION" -> IssueType.QUESTION;
-            case "BUG" -> IssueType.BUG;
-            case "DOCUMENTATION" -> IssueType.DOCUMENTATION;
-            case "FEATURE" -> IssueType.FEATURE;
-            default -> throw new IllegalArgumentException("Tipo non valido: " + type);
-        };
-        this.priority= switch(priority.toUpperCase()){
-            case "LOW" -> Priority.LOW;
-            case "MEDIUM" -> Priority.MEDIUM;
-            case "HIGH" -> Priority.HIGH;
-            default -> throw new IllegalArgumentException("La priorità " + priority + " non è valida" );
-        };
-        this.state= switch(state.toUpperCase().replace(" ", "_")){
-            case "TODO" -> IssueState.TODO;
-            case "IN_PROGRESS" -> IssueState.IN_PROGRESS;
-            case "DONE" -> IssueState.DONE;
-            default -> throw new IllegalArgumentException("Stato non valido: " + state);
-        };
+    public Issue(IssueType type, String title, String description, String imagePath, IssueState state,
+            Priority priority, User reporter) {
+        this.title = title;
+        this.description = description;
+        this.reporter = reporter;
+        this.createdAt = LocalDateTime.now();
+        this.comments = new ArrayList<>();
+        this.imagePath = imagePath;
+        this.type = type;
+        this.priority = priority;
+        this.state = state;
     }
 
     public Integer getId() {

@@ -2,6 +2,7 @@ package com.unina.bugboardapp.controller;
 
 import com.unina.bugboardapp.StartApplication;
 import com.unina.bugboardapp.model.User;
+import com.unina.bugboardapp.model.UserType;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,7 +36,7 @@ public class DashboardController {
         User user = AppController.getInstance().getLoggedUser();
         if (user != null) {
             userInfoLabel.setText(user.getUsername() + " (" + user.getType() + ")");
-            if (user.getType() != User.UserType.ADMIN) {
+            if (user.getType() != UserType.ADMIN) {
                 btnUsers.setVisible(false);
                 btnUsers.setManaged(false);
             }

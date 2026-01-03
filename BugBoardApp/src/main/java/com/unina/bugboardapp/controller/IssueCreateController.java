@@ -1,6 +1,8 @@
 package com.unina.bugboardapp.controller;
 
-import com.unina.bugboardapp.model.Issue;
+import com.unina.bugboardapp.model.IssueType;
+import com.unina.bugboardapp.model.Priority;
+import com.unina.bugboardapp.model.IssueState;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,10 +18,10 @@ public class IssueCreateController {
     private TextField titleField;
 
     @FXML
-    private ComboBox<Issue.IssueType> typeCombo;
+    private ComboBox<IssueType> typeCombo;
 
     @FXML
-    private ComboBox<Issue.Priority> priorityCombo;
+    private ComboBox<Priority> priorityCombo;
 
     @FXML
     private TextArea descriptionArea;
@@ -29,8 +31,8 @@ public class IssueCreateController {
 
     @FXML
     public void initialize() {
-        typeCombo.setItems(FXCollections.observableArrayList(Issue.IssueType.values()));
-        priorityCombo.setItems(FXCollections.observableArrayList(Issue.Priority.values()));
+        typeCombo.setItems(FXCollections.observableArrayList(IssueType.values()));
+        priorityCombo.setItems(FXCollections.observableArrayList(Priority.values()));
 
         typeCombo.getSelectionModel().selectFirst();
         priorityCombo.getSelectionModel().selectFirst();
@@ -54,7 +56,7 @@ public class IssueCreateController {
                 typeCombo.getValue(),
                 priorityCombo.getValue(),
                 imagePathField.getText(),
-                Issue.IssueState.TODO);
+                IssueState.TODO);
         closeWindow();
     }
 
