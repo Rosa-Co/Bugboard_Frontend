@@ -1,13 +1,15 @@
 package com.unina.bugboardapp.controller;
 
 import com.unina.bugboardapp.StartApplication;
+import com.unina.bugboardapp.dialog.ErrorDialog;
+import com.unina.bugboardapp.dialog.InfoDialog;
+import com.unina.bugboardapp.dialog.WarningDialog;
 import com.unina.bugboardapp.model.UserType;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -52,14 +54,14 @@ public class UserCreateController {
         try {
             ValidationResult validation = validateInput();
             if (!validation.valid()) {
-                showAlert(ERROR_MESSAGE, validation.errorMessage());
+                new WarningDialog(ERROR_MESSAGE, validation.errorMessage());
                 return;
             }
 
             createUserAndShowSuccess();
             closeWindow();
         } catch (IllegalArgumentException e) {
-            showAlert(GENERIC_ERROR, e.getMessage());
+            new ErrorDialog(GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -90,7 +92,7 @@ public class UserCreateController {
                 emailField.getText(),
                 passwordField.getText(),
                 typeCombo.getValue());
-        showAlert("Success", "User created successfully.");
+        new InfoDialog("Success", "User created successfully.");
     }
 
     private void closeWindow() {
@@ -107,18 +109,8 @@ public class UserCreateController {
             }
         } catch (IOException e) {
             logger.warning("Failed to return to the dashboard.");
-            showAlert(GENERIC_ERROR, "Could not return to the dashboard.");
+            new ErrorDialog(GENERIC_ERROR, "Could not return to the dashboard.");
         }
-    }
-
-    private void showAlert(String header, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        if (header.contains(GENERIC_ERROR))
-            alert.setAlertType(Alert.AlertType.ERROR);
-        alert.setTitle(header);
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
 
     private record ValidationResult(boolean valid, String errorMessage) {

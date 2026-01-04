@@ -24,7 +24,8 @@ public class Issue {
     private IssueState state;
     @JsonProperty("creataDa")
     private User reporter;
-    @JsonIgnore
+    @JsonProperty("dataCreazione")
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
     private LocalDateTime createdAt;
     @JsonProperty("img")
     private String imagePath; // Optional

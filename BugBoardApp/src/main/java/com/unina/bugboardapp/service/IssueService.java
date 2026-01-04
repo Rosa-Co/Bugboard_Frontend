@@ -41,6 +41,7 @@ public class IssueService {
 
     public Issue createIssue(Issue newIssue) throws IssueException {
         try {
+            mapper.registerModule(new JavaTimeModule());
             IssueCreateRequest request = new IssueCreateRequest(
                     newIssue.getTitle(),
                     newIssue.getDescription(),
