@@ -66,15 +66,7 @@ public class IssueDetailController {
         stateLabel.setText(issue.getState().toString());
         priorityLabel.setText(issue.getPriority().toString() + " Priority");
         reporterLabel.setText(issue.getReporter().getUsername());
-        dateLabel.setText(formatCreatedDate());
         descriptionLabel.setText(issue.getDescription());
-    }
-
-    private String formatCreatedDate() {
-        if (issue.getCreatedAt() != null) {
-            return issue.getCreatedAt().toLocalDate().toString();
-        }
-        return "N/A";
     }
 
     private void updateImage() {

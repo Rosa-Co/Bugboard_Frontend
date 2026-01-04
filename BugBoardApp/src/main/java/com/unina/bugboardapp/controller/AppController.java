@@ -18,10 +18,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-/**
- * Main application controller (Singleton)
- * Manages users, issues, authentication and application state
- */
 public class AppController {
 
     private static AppController instance;
@@ -206,8 +202,6 @@ public class AppController {
         if (imagePath != null && !imagePath.trim().isEmpty()) {
             newIssue.setImagePath(imagePath.trim());
         }
-
-        newIssue.setCreatedAt(null);
         return newIssue;
     }
 

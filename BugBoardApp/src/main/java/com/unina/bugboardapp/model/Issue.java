@@ -1,6 +1,5 @@
 package com.unina.bugboardapp.model;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,9 +23,6 @@ public class Issue {
     private IssueState state;
     @JsonProperty("creataDa")
     private User reporter;
-    @JsonProperty("dataCreazione")
-    @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
-    private LocalDateTime createdAt;
     @JsonProperty("img")
     private String imagePath; // Optional
     @JsonIgnore
@@ -41,7 +37,6 @@ public class Issue {
         this.title = title;
         this.description = description;
         this.reporter = reporter;
-        this.createdAt = LocalDateTime.now();
         this.comments = new ArrayList<>();
         this.imagePath = imagePath;
         this.type = type;
@@ -79,14 +74,6 @@ public class Issue {
 
     public User getReporter() {
         return reporter;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 
     public String getImagePath() {

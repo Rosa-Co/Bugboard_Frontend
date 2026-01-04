@@ -28,8 +28,6 @@
                <HBox spacing="5" style="-fx-padding: 10 0 0 0;">
                    <Label text="Reported by" styleClass="title-4" />
                    <Label fx:id="reporterLabel" text="user" style="-fx-font-weight: bold;" />
-                   <Label text="on" styleClass="title-4" />
-                   <Label fx:id="dateLabel" text="2023-01-01" styleClass="title-4" />
                </HBox>
            </VBox>
            

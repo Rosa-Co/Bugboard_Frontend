@@ -49,8 +49,6 @@ public class IssueListController {
     private TableColumn<Issue, IssueState> colState;
     @FXML
     private TableColumn<Issue, String> colReporter;
-    @FXML
-    private TableColumn<Issue, String> colDate;
 
     private final ObservableList<Issue> masterData = FXCollections.observableArrayList();
     private static final Logger logger = Logger.getLogger(IssueListController.class.getName());
@@ -69,13 +67,6 @@ public class IssueListController {
         colPriority.setCellValueFactory(new PropertyValueFactory<>("priority"));
         colState.setCellValueFactory(new PropertyValueFactory<>("state"));
         colReporter.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getReporter().getUsername()));
-        colDate.setCellValueFactory(cell -> {
-            if (cell.getValue().getCreatedAt() != null) {
-                return new SimpleStringProperty(cell.getValue().getCreatedAt().toString());
-            } else {
-                return new SimpleStringProperty("-");
-            }
-        });
     }
 
     private void setupFiltersAndTable() {
@@ -97,7 +88,6 @@ public class IssueListController {
         sortedData.comparatorProperty().bind(issueTable.comparatorProperty());
         issueTable.setItems(sortedData);
 
-        // Setup doppio click
         issueTable.setRowFactory(tv -> {
             TableRow<Issue> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
