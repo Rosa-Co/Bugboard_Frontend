@@ -12,6 +12,7 @@ public class LoginResponseDTO {
     private List<String> roles;
 
     public LoginResponseDTO() {
+        /*costruttore vuoto per la costruzione del messaggio JSON*/
     }
 
     public String getToken() {

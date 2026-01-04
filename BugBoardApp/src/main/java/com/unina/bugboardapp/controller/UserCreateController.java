@@ -1,7 +1,6 @@
 package com.unina.bugboardapp.controller;
 
 import com.unina.bugboardapp.StartApplication;
-import com.unina.bugboardapp.model.User;
 import com.unina.bugboardapp.model.UserType;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -14,16 +13,19 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import java.util.logging.Logger;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
 
 public class UserCreateController {
-
+    private static final Logger logger = Logger.getLogger(UserCreateController.class.getName());
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
+            "^[a-zA-Z0-9_+&*-]++(?:\\.[a-zA-Z0-9_+&*-]++)*+@(?:[a-zA-Z0-9-]++\\.)++[a-zA-Z]{2,7}$");
 
-    private static final int MIN_PASSWORD_LENGTH = 6;
+    private static final int MIN_PASSWORD_LENGTH = 3;
+    private static final String ERROR_MESSAGE = "Validation Error";
+    private static final String GENERIC_ERROR = "Error";
 
     @FXML
     private TextField emailField;
@@ -50,14 +52,14 @@ public class UserCreateController {
         try {
             ValidationResult validation = validateInput();
             if (!validation.valid()) {
-                showAlert("Validation Error", validation.errorMessage());
+                showAlert(ERROR_MESSAGE, validation.errorMessage());
                 return;
             }
 
             createUserAndShowSuccess();
             closeWindow();
         } catch (IllegalArgumentException e) {
-            showAlert("Error", e.getMessage());
+            showAlert(GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -76,6 +78,9 @@ public class UserCreateController {
         if (!EMAIL_PATTERN.matcher(email).matches()) {
             return ValidationResult.error("Invalid email format!");
         }
+        if(AppController.getInstance().existsUser(email))
+            return ValidationResult.error("User already exists!");
+
 
         return ValidationResult.success();
     }
@@ -90,28 +95,25 @@ public class UserCreateController {
 
     private void closeWindow() {
         try {
-            // Otteniamo il contentArea dalla Dashboard risalendo dal nodo corrente
             StackPane contentArea = (StackPane) emailField.getScene().lookup("#contentArea");
 
             if (contentArea != null) {
-                // Carichiamo la vista delle issue
                 FXMLLoader loader = new FXMLLoader(StartApplication.class.getResource("issue-list-view.fxml"));
                 Node view = loader.load();
                 contentArea.getChildren().setAll(view);
             } else {
-                // Fallback nel caso la vista sia aperta in una finestra separata (modal)
                 Stage stage = (Stage) emailField.getScene().getWindow();
                 stage.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Error", "Could not return to the dashboard.");
+            logger.warning("Failed to return to the dashboard.");
+            showAlert(GENERIC_ERROR, "Could not return to the dashboard.");
         }
     }
 
     private void showAlert(String header, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        if (header.contains("Error"))
+        if (header.contains(GENERIC_ERROR))
             alert.setAlertType(Alert.AlertType.ERROR);
         alert.setTitle(header);
         alert.setHeaderText(header);

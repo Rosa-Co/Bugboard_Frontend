@@ -1,5 +1,6 @@
 package com.unina.bugboardapp.service;
 
+import com.unina.bugboardapp.exception.ApiException;
 import com.unina.bugboardapp.manager.SessionManager;
 
 import java.io.IOException;
@@ -8,9 +9,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 public class ApiClient {
-
+    private static final Logger logger = Logger.getLogger(ApiClient.class.getName());
     private static final String BASE_URL = "http://localhost:8080/api";
     private static ApiClient instance;
     private final HttpClient client;
@@ -74,8 +77,8 @@ public class ApiClient {
 
     private void handleError(HttpResponse<String> response) {
         if (response.statusCode() >= 400) {
-            System.err.println("API Error " + response.statusCode() + ": " + response.body());
-            throw new RuntimeException("API call failed with status " + response.statusCode() + ": " + response.body());
+            logger.log(Level.WARNING, () -> "API Error " + response.statusCode() + ": " + response.body());
+            throw new ApiException(response.statusCode(),"API call failed: "  + response.body());
         }
     }
 }

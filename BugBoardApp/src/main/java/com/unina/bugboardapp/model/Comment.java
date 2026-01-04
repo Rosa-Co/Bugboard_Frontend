@@ -5,12 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Map;
 
-/**
- * Represents a comment on an issue
- */
 public class Comment {
     @JsonProperty("id")
     private Integer id;
@@ -78,11 +73,7 @@ public class Comment {
         return timestamp.format(FORMATTER);
     }
 
-    /**
-     * Gets a relative time string (e.g., "2 hours ago")
-     * 
-     * @return Relative time string
-     */
+
     @JsonIgnore
     public String getRelativeTime() {
         LocalDateTime now = LocalDateTime.now();

@@ -20,10 +20,7 @@ import java.util.logging.Logger;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-/**
- * Controller for the login view
- * Handles user authentication and navigation to the dashboard
- */
+
 public class LoginController {
     private static final Logger logger = Logger.getLogger(LoginController.class.getName());
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
@@ -59,11 +56,6 @@ public class LoginController {
         passwordField.textProperty().addListener((obs, oldVal, newVal) -> hideError());
     }
 
-    /**
-     * Handles the login button action
-     * 
-     * @param event The action event
-     */
     @FXML
     void onLogin(ActionEvent event) {
         String email = emailField.getText().trim();
@@ -87,13 +79,6 @@ public class LoginController {
         }
     }
 
-    /**
-     * Validates user inputs
-     * 
-     * @param email    The email address
-     * @param password The password
-     * @return true if inputs are valid, false otherwise
-     */
     private boolean validateInputs(String email, String password) {
         if (email.isEmpty() && password.isEmpty()) {
             showError("Please enter your email and password.");
@@ -127,38 +112,23 @@ public class LoginController {
         return true;
     }
 
-    /**
-     * Validates email format
-     * 
-     * @param email The email to validate
-     * @return true if email is valid, false otherwise
-     */
     private boolean isValidEmail(String email) {
         return email != null
                 && EMAIL_PATTERN.matcher(email).matches()
                 && email.length() <= 254;
     }
 
-    /**
-     * Shows error message with animation
-     * 
-     * @param message The error message to display
-     */
     private void showError(String message) {
         errorLabel.setText(message);
         errorLabel.setVisible(true);
         errorLabel.setManaged(true);
 
-        // Fade in animation
         FadeTransition fade = new FadeTransition(Duration.millis(300), errorLabel);
         fade.setFromValue(0.0);
         fade.setToValue(1.0);
         fade.play();
     }
 
-    /**
-     * Hides error message
-     */
     private void hideError() {
         if (errorLabel.isVisible()) {
             FadeTransition fade = new FadeTransition(Duration.millis(200), errorLabel);
@@ -172,11 +142,6 @@ public class LoginController {
         }
     }
 
-    /**
-     * Navigates to the dashboard view
-     * 
-     * @param event The action event
-     */
     private void navigateToDashboard(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(StartApplication.class.getResource(DASHBOARD_VIEW));

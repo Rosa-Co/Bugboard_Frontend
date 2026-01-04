@@ -19,6 +19,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import java.util.logging.Logger;
 
 import java.io.IOException;
 
@@ -52,7 +53,7 @@ public class IssueListController {
     private TableColumn<Issue, String> colDate;
 
     private final ObservableList<Issue> masterData = FXCollections.observableArrayList();
-
+    private static final Logger logger = Logger.getLogger(IssueListController.class.getName());
     @FXML
     public void initialize() {
         setupColumns();
@@ -81,7 +82,6 @@ public class IssueListController {
         typeFilter.setItems(FXCollections.observableArrayList(IssueType.values()));
         stateFilter.setItems(FXCollections.observableArrayList(IssueState.values()));
 
-        // FilteredList avvolge la NOSTRA masterData (che non cambia mai riferimento)
         FilteredList<Issue> filteredData = new FilteredList<>(masterData, p -> true);
 
         searchField.textProperty().addListener((obs, oldVal, newVal) -> filteredData
@@ -141,7 +141,7 @@ public class IssueListController {
             stage.setScene(new Scene(root));
             stage.showAndWait();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe("Failed to load issue create view");
         }
     }
 
@@ -159,7 +159,7 @@ public class IssueListController {
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe("Failed to load issue detail view");
         }
     }
 }

@@ -2,7 +2,6 @@ package com.unina.bugboardapp.model;
 
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -35,10 +34,6 @@ public class User {
     @JsonProperty("email")
     public String getUsername() {
         return username;
-    }
-
-    public boolean checkPassword(String password) {
-        return this.password.equals(password);
     }
 
     @JsonProperty("role")

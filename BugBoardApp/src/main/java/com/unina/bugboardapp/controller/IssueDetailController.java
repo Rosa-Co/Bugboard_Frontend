@@ -1,10 +1,8 @@
 package com.unina.bugboardapp.controller;
 
+import com.unina.bugboardapp.exception.CommentException;
 import com.unina.bugboardapp.model.Comment;
 import com.unina.bugboardapp.model.Issue;
-import com.unina.bugboardapp.model.IssueType;
-import com.unina.bugboardapp.model.Priority;
-import com.unina.bugboardapp.model.IssueState;
 
 import com.unina.bugboardapp.service.CommentService;
 import javafx.event.ActionEvent;
@@ -53,51 +51,78 @@ public class IssueDetailController {
     }
 
     private void updateUI() {
-        if (issue == null)
+        if (issue == null) {
             return;
+        }
 
+        updateBasicInfo();
+        updateImage();
+        updateComments();
+    }
+
+    private void updateBasicInfo() {
         titleLabel.setText(issue.getTitle());
         typeLabel.setText(issue.getType().toString());
         stateLabel.setText(issue.getState().toString());
         priorityLabel.setText(issue.getPriority().toString() + " Priority");
         reporterLabel.setText(issue.getReporter().getUsername());
-        if (issue.getCreatedAt() != null) {
-            dateLabel.setText(issue.getCreatedAt().toLocalDate().toString());
-        } else {
-            dateLabel.setText("N/A");
-        }
+        dateLabel.setText(formatCreatedDate());
         descriptionLabel.setText(issue.getDescription());
+    }
 
-        if (issue.getImagePath() != null && !issue.getImagePath().isEmpty()) {
-            try {
-                File file = new File(issue.getImagePath());
-                if (file.exists()) {
-                    imageView.setImage(new Image(file.toURI().toString()));
-                } else {
-                    if (issue.getImagePath().startsWith("http")) {
-                        imageView.setImage(new Image(issue.getImagePath()));
-                    } else {
-                        hideImage();
-                    }
-                }
-            } catch (Exception e) {
-                hideImage();
+    private String formatCreatedDate() {
+        if (issue.getCreatedAt() != null) {
+            return issue.getCreatedAt().toLocalDate().toString();
+        }
+        return "N/A";
+    }
+
+    private void updateImage() {
+        if (issue.getImagePath() == null || issue.getImagePath().isEmpty()) {
+            hideImage();
+            return;
+        }
+
+        try {
+            if (tryLoadLocalImage()) {
+                return;
             }
-        } else {
+            if (tryLoadRemoteImage()) {
+                return;
+            }
+            hideImage();
+        } catch (Exception e) {
             hideImage();
         }
+    }
 
-        commentsList.getChildren().clear();
-        List<Comment> comments;
-        try {
-            comments = commentService.getCommentsByIssueId(issue.getId());
-        } catch (Exception e) {
-            throw new RuntimeException("Error retrieving comments for issue " + issue.getId(), e);
+    private boolean tryLoadLocalImage() {
+        File file = new File(issue.getImagePath());
+        if (file.exists()) {
+            imageView.setImage(new Image(file.toURI().toString()));
+            return true;
         }
-        if (comments != null) {
-            for (Comment comment : comments) {
-                addCommentToVBox(comment);
+        return false;
+    }
+
+    private boolean tryLoadRemoteImage() {
+        if (issue.getImagePath().startsWith("http")) {
+            imageView.setImage(new Image(issue.getImagePath()));
+            return true;
+        }
+        return false;
+    }
+
+    private void updateComments() {
+        commentsList.getChildren().clear();
+
+        try {
+            List<Comment> comments = commentService.getCommentsByIssueId(issue.getId());
+            if (comments != null) {
+                comments.forEach(this::addCommentToVBox);
             }
+        } catch (CommentException e) {
+            throw new IllegalStateException("Error retrieving comments for issue " + issue.getId(), e);
         }
     }
 
@@ -112,7 +137,7 @@ public class IssueDetailController {
             return;
 
         AppController.getInstance().addComment(issue, commentArea.getText(),
-                (createdComment) -> {
+                createdComment -> {
                     commentArea.clear();
                     addCommentToVBox(createdComment);
                 });
