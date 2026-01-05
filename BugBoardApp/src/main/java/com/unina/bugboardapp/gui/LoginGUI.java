@@ -1,6 +1,7 @@
-package com.unina.bugboardapp.controller;
+package com.unina.bugboardapp.gui;
 
 import com.unina.bugboardapp.StartApplication;
+import com.unina.bugboardapp.controller.AppController;
 import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -21,8 +22,8 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 
-public class LoginController {
-    private static final Logger logger = Logger.getLogger(LoginController.class.getName());
+public class LoginGUI {
+    private static final Logger logger = Logger.getLogger(LoginGUI.class.getName());
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[a-zA-Z0-9_+&*-]++(?:\\.[a-zA-Z0-9_+&*-]++)*+@(?:[a-zA-Z0-9-]++\\.)++[a-zA-Z]{2,7}$");
 

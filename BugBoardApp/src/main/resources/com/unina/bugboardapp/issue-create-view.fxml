@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="20.0" stylesheets="@styles/custom.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.unina.bugboardapp.controller.IssueCreateController" style="-fx-background-color: -color-bg-default;" prefWidth="500">
+<VBox spacing="20.0" stylesheets="@styles/custom.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.unina.bugboardapp.gui.IssueCreateGUI" style="-fx-background-color: -color-bg-default;" prefWidth="500">
    <children>
       <VBox spacing="5.0">
           <Label text="New Issue" styleClass="title-2" />

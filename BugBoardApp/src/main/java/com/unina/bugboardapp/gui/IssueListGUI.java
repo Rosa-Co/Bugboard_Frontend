@@ -1,6 +1,7 @@
-package com.unina.bugboardapp.controller;
+package com.unina.bugboardapp.gui;
 
 import com.unina.bugboardapp.StartApplication;
+import com.unina.bugboardapp.controller.AppController;
 import com.unina.bugboardapp.model.Issue;
 import com.unina.bugboardapp.model.IssueType;
 import com.unina.bugboardapp.model.Priority;
@@ -23,7 +24,7 @@ import java.util.logging.Logger;
 
 import java.io.IOException;
 
-public class IssueListController {
+public class IssueListGUI {
 
     @FXML
     private TextField searchField;
@@ -51,7 +52,7 @@ public class IssueListController {
     private TableColumn<Issue, String> colReporter;
 
     private final ObservableList<Issue> masterData = FXCollections.observableArrayList();
-    private static final Logger logger = Logger.getLogger(IssueListController.class.getName());
+    private static final Logger logger = Logger.getLogger(IssueListGUI.class.getName());
     @FXML
     public void initialize() {
         setupColumns();
@@ -140,7 +141,7 @@ public class IssueListController {
             FXMLLoader loader = new FXMLLoader(StartApplication.class.getResource("issue-detail-view.fxml"));
             Parent root = loader.load();
 
-            IssueDetailController controller = loader.getController();
+            IssueDetailGUI controller = loader.getController();
             controller.setIssue(issue);
 
             Stage stage = new Stage();

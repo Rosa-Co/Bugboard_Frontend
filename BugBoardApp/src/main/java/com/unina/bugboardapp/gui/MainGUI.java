@@ -1,4 +1,4 @@
-package com.unina.bugboardapp.controller;
+package com.unina.bugboardapp.gui;
 
 import com.unina.bugboardapp.utils.AsyncHelper;
 import javafx.fxml.FXML;
@@ -7,7 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
 
-public class MainController {
+public class MainGUI {
 
     @FXML
     private VBox root;

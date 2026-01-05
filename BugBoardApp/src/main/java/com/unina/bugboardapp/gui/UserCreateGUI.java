@@ -1,6 +1,7 @@
-package com.unina.bugboardapp.controller;
+package com.unina.bugboardapp.gui;
 
 import com.unina.bugboardapp.StartApplication;
+import com.unina.bugboardapp.controller.AppController;
 import com.unina.bugboardapp.dialog.ErrorDialog;
 import com.unina.bugboardapp.dialog.InfoDialog;
 import com.unina.bugboardapp.dialog.WarningDialog;
@@ -20,8 +21,8 @@ import java.util.logging.Logger;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-public class UserCreateController {
-    private static final Logger logger = Logger.getLogger(UserCreateController.class.getName());
+public class UserCreateGUI {
+    private static final Logger logger = Logger.getLogger(UserCreateGUI.class.getName());
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[a-zA-Z0-9_+&*-]++(?:\\.[a-zA-Z0-9_+&*-]++)*+@(?:[a-zA-Z0-9-]++\\.)++[a-zA-Z]{2,7}$");
 
@@ -54,14 +55,14 @@ public class UserCreateController {
         try {
             ValidationResult validation = validateInput();
             if (!validation.valid()) {
-                new WarningDialog(ERROR_MESSAGE, validation.errorMessage());
+                new WarningDialog(ERROR_MESSAGE, validation.errorMessage()).show();
                 return;
             }
 
             createUserAndShowSuccess();
             closeWindow();
         } catch (IllegalArgumentException e) {
-            new ErrorDialog(GENERIC_ERROR, e.getMessage());
+            new ErrorDialog(GENERIC_ERROR, e.getMessage()).show();
         }
     }
 
@@ -92,7 +93,7 @@ public class UserCreateController {
                 emailField.getText(),
                 passwordField.getText(),
                 typeCombo.getValue());
-        new InfoDialog("Success", "User created successfully.");
+        new InfoDialog("Success", "User created successfully.").show();
     }
 
     private void closeWindow() {
@@ -109,7 +110,7 @@ public class UserCreateController {
             }
         } catch (IOException e) {
             logger.warning("Failed to return to the dashboard.");
-            new ErrorDialog(GENERIC_ERROR, "Could not return to the dashboard.");
+            new ErrorDialog(GENERIC_ERROR, "Could not return to the dashboard.").show();
         }
     }
 

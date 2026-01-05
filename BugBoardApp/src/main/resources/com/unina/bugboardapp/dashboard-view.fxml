@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane stylesheets="@styles/custom.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.unina.bugboardapp.controller.DashboardController">
+<BorderPane stylesheets="@styles/custom.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.unina.bugboardapp.gui.DashboardGUI">
     <!-- Left Sidebar -->
     <left>
         <VBox spacing="10" styleClass="sidebar" prefWidth="250">
