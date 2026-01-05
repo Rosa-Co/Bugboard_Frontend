@@ -34,7 +34,6 @@
       <!-- Table -->
       <TableView fx:id="issueTable" VBox.vgrow="ALWAYS">
         <columns>
-          <TableColumn fx:id="colId" text="ID" prefWidth="50" style="-fx-alignment: CENTER;" />
           <TableColumn fx:id="colTitle" text="Title" prefWidth="300" />
           <TableColumn fx:id="colType" text="Type" prefWidth="100" style="-fx-alignment: CENTER;" />
           <TableColumn fx:id="colPriority" text="Priority" prefWidth="100" style="-fx-alignment: CENTER;" />

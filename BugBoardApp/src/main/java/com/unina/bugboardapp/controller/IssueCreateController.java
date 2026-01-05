@@ -44,6 +44,18 @@ public class IssueCreateController {
     }
 
     @FXML
+    void onBrowseImage(ActionEvent event) {
+        javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+        fileChooser.setTitle("Select Image");
+        fileChooser.getExtensionFilters().addAll(
+                new javafx.stage.FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"));
+        java.io.File selectedFile = fileChooser.showOpenDialog(imagePathField.getScene().getWindow());
+        if (selectedFile != null) {
+            imagePathField.setText(selectedFile.getAbsolutePath());
+        }
+    }
+
+    @FXML
     void onSave(ActionEvent event) {
         if (titleField.getText().isEmpty() || descriptionArea.getText().isEmpty()) {
             showAlert("Validation Error", "Please fill in title and description.");

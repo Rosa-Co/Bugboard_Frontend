@@ -44,6 +44,7 @@ public class IssueDetailController {
 
     private Issue issue;
     private final CommentService commentService = new CommentService();
+    private final com.unina.bugboardapp.service.IssueService issueService = new com.unina.bugboardapp.service.IssueService();
 
     public void setIssue(Issue issue) {
         this.issue = issue;
@@ -75,17 +76,13 @@ public class IssueDetailController {
             return;
         }
 
-        try {
-            if (tryLoadLocalImage()) {
-                return;
-            }
-            if (tryLoadRemoteImage()) {
-                return;
-            }
-            hideImage();
-        } catch (Exception e) {
-            hideImage();
+        if (tryLoadLocalImage()) {
+            imageContainer.setVisible(true);
+            imageContainer.setManaged(true);
+            return;
         }
+
+        loadImageAsync();
     }
 
     private boolean tryLoadLocalImage() {
@@ -97,12 +94,20 @@ public class IssueDetailController {
         return false;
     }
 
-    private boolean tryLoadRemoteImage() {
-        if (issue.getImagePath().startsWith("http")) {
-            imageView.setImage(new Image(issue.getImagePath()));
-            return true;
-        }
-        return false;
+    private void loadImageAsync() {
+        new Thread(() -> {
+            try {
+                java.io.InputStream is = issueService.downloadImage(issue.getImagePath());
+                Image img = new Image(is);
+                javafx.application.Platform.runLater(() -> {
+                    imageView.setImage(img);
+                    imageContainer.setVisible(true);
+                    imageContainer.setManaged(true);
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(this::hideImage);
+            }
+        }).start();
     }
 
     private void updateComments() {

@@ -38,8 +38,6 @@ public class IssueListController {
     private TableView<Issue> issueTable;
 
     @FXML
-    private TableColumn<Issue, Integer> colId;
-    @FXML
     private TableColumn<Issue, String> colTitle;
     @FXML
     private TableColumn<Issue, IssueType> colType;
@@ -52,6 +50,7 @@ public class IssueListController {
 
     private final ObservableList<Issue> masterData = FXCollections.observableArrayList();
     private static final Logger logger = Logger.getLogger(IssueListController.class.getName());
+
     @FXML
     public void initialize() {
         setupColumns();
@@ -61,7 +60,6 @@ public class IssueListController {
     }
 
     private void setupColumns() {
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
         colPriority.setCellValueFactory(new PropertyValueFactory<>("priority"));
@@ -145,7 +143,7 @@ public class IssueListController {
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Issue #" + issue.getId());
+            stage.setTitle("Issue Details");
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {

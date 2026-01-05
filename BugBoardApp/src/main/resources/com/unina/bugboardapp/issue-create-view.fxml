@@ -39,8 +39,11 @@
           </VBox>
           
           <VBox spacing="5.0">
-             <Label text="Attachment Path" style="-fx-font-weight: bold;" />
-             <TextField fx:id="imagePathField" promptText="C:/path/to/image.png" />
+             <Label text="Attachment" style="-fx-font-weight: bold;" />
+             <HBox spacing="10.0">
+                <TextField fx:id="imagePathField" promptText="No file selected" editable="false" HBox.hgrow="ALWAYS"/>
+                <Button text="Browse..." onAction="#onBrowseImage" />
+             </HBox>
           </VBox>
       </VBox>
       
