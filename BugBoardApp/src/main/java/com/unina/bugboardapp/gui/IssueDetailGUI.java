@@ -253,7 +253,7 @@ public class IssueDetailGUI {
         cell.setStyle(
                 "-fx-padding: 10; -fx-background-color: -color-bg-default; -fx-background-radius: 6; -fx-border-color: -color-border-subtle; -fx-border-radius: 6;");
 
-        Label header = new Label(comment.getAuthor().getUsername() + " · " + comment.getRelativeTime());
+        Label header = new Label(comment.getAuthor().getUsername());
         header.setStyle("-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: -color-fg-muted;");
 
         Label content = new Label(comment.getContent());

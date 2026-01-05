@@ -1,10 +1,8 @@
 package com.unina.bugboardapp.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 /**
  * Modello che rappresenta un commento associato a una issue.
  * <p>
@@ -21,11 +19,6 @@ import java.time.format.DateTimeFormatter;
  *   <li>{@link #timestamp}: data/ora del commento</li>
  * </ul>
  *
- * <h2>Metodi di utilità</h2>
- * <ul>
- *   <li>{@link #getFormattedTimestamp()}: timestamp formattato per UI</li>
- *   <li>{@link #getRelativeTime()}: rappresentazione “relativa” (es. minutes ago)</li>
- * </ul>
  */
 public class Comment {
     @JsonProperty("id")
@@ -38,7 +31,6 @@ public class Comment {
     private String content;
     @JsonProperty("data")
     private LocalDateTime timestamp;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm");
 
     /**
      * Costruttore vuoto richiesto da Jackson.
@@ -91,53 +83,5 @@ public class Comment {
     }
     public void setContent(String content) {
         this.content = content;
-    }
-
-    @JsonIgnore
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    /**
-     * Restituisce il timestamp formattato per visualizzazione.
-     *
-     * @return timestamp formattato secondo {@link #FORMATTER}
-     */
-    @JsonIgnore
-    public String getFormattedTimestamp() {
-        return timestamp.format(FORMATTER);
-    }
-
-    /**
-     * Restituisce una rappresentazione temporale relativa rispetto a "now".
-     * <p>
-     * Esempi: {@code just now}, {@code 5 minutes ago}, {@code 2 hours ago}, {@code 3 days ago}.
-     * Oltre i 7 giorni, ritorna {@link #getFormattedTimestamp()}.
-     * </p>
-     *
-     * @return stringa descrittiva del tempo trascorso
-     */
-    @JsonIgnore
-    public String getRelativeTime() {
-        LocalDateTime now = LocalDateTime.now();
-        java.time.Duration duration = java.time.Duration.between(timestamp, now);
-        long minutesAgo = duration.toMinutes();
-        long hoursAgo = duration.toHours();
-        long daysAgo = duration.toDays();
-
-        if (minutesAgo < 1) {
-            return "just now";
-        } else if (minutesAgo < 60) {
-            return minutesAgo + " minute" + (minutesAgo > 1 ? "s" : "") + " ago";
-        } else if (hoursAgo < 24) {
-            return hoursAgo + " hour" + (hoursAgo > 1 ? "s" : "") + " ago";
-        } else if (daysAgo < 7) {
-            return daysAgo + " day" + (daysAgo > 1 ? "s" : "") + " ago";
-        } else {
-            return getFormattedTimestamp();
-        }
     }
 }
