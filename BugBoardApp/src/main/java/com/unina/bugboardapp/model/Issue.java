@@ -4,7 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.*;
-
+/**
+ * Modello che rappresenta una Issue (segnalazione/bug/task) dell'applicazione.
+ * <p>
+ * La classe è annotata per l'integrazione con Jackson, usando nomi di proprietà
+ * coerenti con il backend (es. {@code titolo}, {@code descrizione}, {@code priorita}).
+ * Gli attributi non riconosciuti vengono ignorati grazie a {@link JsonIgnoreProperties}.
+ * </p>
+ *
+ * <h2>Campi principali</h2>
+ * <ul>
+ *   <li>{@link #id}: identificativo della issue (incluso nel JSON se diverso da default)</li>
+ *   <li>{@link #title}: titolo della issue</li>
+ *   <li>{@link #description}: descrizione della issue</li>
+ *   <li>{@link #type}: tipologia della issue</li>
+ *   <li>{@link #priority}: priorità</li>
+ *   <li>{@link #state}: stato corrente</li>
+ *   <li>{@link #reporter}: utente che ha creato la issue</li>
+ *   <li>{@link #imagePath}: eventuale percorso/URL immagine associata</li>
+ *   <li>{@link #comments}: commenti associati (gestiti lato client, ignorati nel JSON)</li>
+ * </ul>
+ *
+ * <h2>Note sulla serializzazione</h2>
+ * <p>
+ * {@link #comments} è marcato {@link JsonIgnore}: se i commenti vengono restituiti dal backend
+ * con una proprietà dedicata, sarà necessario rimuovere l'ignore o introdurre un mapping esplicito.
+ * </p>
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Issue {
 
@@ -28,10 +54,24 @@ public class Issue {
     @JsonIgnore
     private List<Comment> comments;
 
+    /**
+     * Costruttore vuoto (necessario per Jackson).
+     * Inizializza la lista commenti a vuota.
+     */
     public Issue() {
         this.comments = new ArrayList<>();
     }
-
+    /**
+     * Costruisce una issue con i principali campi.
+     *
+     * @param type tipologia
+     * @param title titolo
+     * @param description descrizione
+     * @param imagePath percorso/URL immagine (opzionale)
+     * @param state stato iniziale
+     * @param priority priorità
+     * @param reporter utente che crea la issue
+     */
     public Issue(IssueType type, String title, String description, String imagePath, IssueState state,
             Priority priority, User reporter) {
         this.title = title;
@@ -111,7 +151,14 @@ public class Issue {
     public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
-
+    /**
+     * Aggiunge un commento alla issue.
+     * <p>
+     * Se la lista commenti è {@code null}, viene inizializzata.
+     * </p>
+     *
+     * @param comment commento da aggiungere
+     */
     public void addComment(Comment comment) {
         if (this.comments == null) {
             this.comments = new ArrayList<>();

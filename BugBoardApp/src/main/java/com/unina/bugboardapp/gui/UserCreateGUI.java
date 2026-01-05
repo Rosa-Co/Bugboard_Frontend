@@ -21,6 +21,29 @@ import java.util.logging.Logger;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+/**
+ * Controller JavaFX per la creazione di un nuovo utente.
+ * <p>
+ * La vista consente di inserire email, password e tipo utente, validare i dati e,
+ * in caso di esito positivo, invocare la creazione tramite {@link AppController}.
+ * Gli esiti vengono comunicati tramite dialog (warning/info/error).
+ * </p>
+ *
+ * <h2>Validazione</h2>
+ * <ul>
+ *   <li>tutti i campi devono essere compilati;</li>
+ *   <li>password con lunghezza minima {@link #MIN_PASSWORD_LENGTH};</li>
+ *   <li>formato email valido tramite {@link #EMAIL_PATTERN};</li>
+ *   <li>email non già registrata (verifica via {@link AppController#existsUser(String)}).</li>
+ * </ul>
+ *
+ * <h2>Navigazione/chiusura</h2>
+ * <p>
+ * Alla chiusura, se è presente un {@link StackPane} con id {@code contentArea} nella scena corrente,
+ * viene rimpiazzato il contenuto caricando {@code issue-list-view.fxml}; altrimenti viene chiusa
+ * la finestra corrente.
+ * </p>
+ */
 public class UserCreateGUI {
     private static final Logger logger = Logger.getLogger(UserCreateGUI.class.getName());
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
@@ -39,17 +62,35 @@ public class UserCreateGUI {
     @FXML
     private ComboBox<UserType> typeCombo;
 
+    /**
+     * Inizializza la view popolando la combo con i valori dell'enum e selezionando {@link UserType#USER}.
+     */
     @FXML
     public void initialize() {
         typeCombo.setItems(FXCollections.observableArrayList(UserType.values()));
         typeCombo.getSelectionModel().select(UserType.USER);
     }
 
+    /**
+     * Handler del pulsante annulla: chiude la finestra o torna alla vista precedente.
+     *
+     * @param event evento JavaFX associato; può essere {@code null}
+     */
     @FXML
     void onCancel(ActionEvent event) {
         closeWindow();
     }
 
+    /**
+     * Handler del pulsante salva.
+     * <p>
+     * Valida i dati; in caso di errori mostra un {@link WarningDialog}.
+     * Se la validazione passa, crea l'utente e mostra un {@link InfoDialog}, quindi chiude/torna indietro.
+     * Eventuali {@link IllegalArgumentException} vengono mostrate con {@link ErrorDialog}.
+     * </p>
+     *
+     * @param event evento JavaFX associato; può essere {@code null}
+     */
     @FXML
     void onSave(ActionEvent event) {
         try {
@@ -66,6 +107,11 @@ public class UserCreateGUI {
         }
     }
 
+    /**
+     * Esegue la validazione dei campi inseriti.
+     *
+     * @return un {@link ValidationResult} con esito e messaggio di errore (se presente)
+     */
     private ValidationResult validateInput() {
         String email = emailField.getText();
         String password = passwordField.getText();
@@ -88,6 +134,12 @@ public class UserCreateGUI {
         return ValidationResult.success();
     }
 
+    /**
+     * Crea l'utente delegando ad {@link AppController} e mostra un dialog di successo.
+     * <p>
+     * Usa i valori correnti dei campi email/password e del combo {@link #typeCombo}.
+     * </p>
+     */
     private void createUserAndShowSuccess() {
         AppController.getInstance().createUser(
                 emailField.getText(),
@@ -96,6 +148,16 @@ public class UserCreateGUI {
         new InfoDialog("Success", "User created successfully.").show();
     }
 
+    /**
+     * Chiude la view corrente.
+     * <p>
+     * Se esiste un nodo con id {@code contentArea} nella scena, carica {@code issue-list-view.fxml}
+     * e lo imposta come contenuto; altrimenti chiude lo {@link Stage} corrente.
+     * </p>
+     * <p>
+     * In caso di {@link IOException} mostra un {@link ErrorDialog}.
+     * </p>
+     */
     private void closeWindow() {
         try {
             StackPane contentArea = (StackPane) emailField.getScene().lookup("#contentArea");
@@ -114,6 +176,12 @@ public class UserCreateGUI {
         }
     }
 
+    /**
+     * Risultato della validazione dei campi di input.
+     *
+     * @param valid indica se la validazione è passata
+     * @param errorMessage messaggio di errore associato (può essere {@code null} se {@code valid} è {@code true})
+     */
     private record ValidationResult(boolean valid, String errorMessage) {
 
         static ValidationResult success() {
