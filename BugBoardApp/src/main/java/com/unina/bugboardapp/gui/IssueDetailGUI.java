@@ -1,5 +1,6 @@
-package com.unina.bugboardapp.controller;
+package com.unina.bugboardapp.gui;
 
+import com.unina.bugboardapp.controller.AppController;
 import com.unina.bugboardapp.exception.CommentException;
 import com.unina.bugboardapp.model.Comment;
 import com.unina.bugboardapp.model.Issue;
@@ -17,7 +18,7 @@ import javafx.scene.layout.VBox;
 import java.io.File;
 import java.util.List;
 
-public class IssueDetailController {
+public class IssueDetailGUI {
 
     @FXML
     private Label typeLabel;

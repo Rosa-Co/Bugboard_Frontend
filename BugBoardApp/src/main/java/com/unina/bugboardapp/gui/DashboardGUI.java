@@ -1,6 +1,7 @@
-package com.unina.bugboardapp.controller;
+package com.unina.bugboardapp.gui;
 
 import com.unina.bugboardapp.StartApplication;
+import com.unina.bugboardapp.controller.AppController;
 import com.unina.bugboardapp.model.User;
 import com.unina.bugboardapp.model.UserType;
 import javafx.application.Platform;
@@ -19,8 +20,8 @@ import java.util.logging.Logger;
 
 import java.io.IOException;
 
-public class DashboardController {
-    private static final Logger logger = Logger.getLogger(DashboardController.class.getName());
+public class DashboardGUI {
+    private static final Logger logger = Logger.getLogger(DashboardGUI.class.getName());
 
     @FXML
     private Label userInfoLabel;
@@ -44,13 +45,11 @@ public class DashboardController {
                 btnUsers.setManaged(false);
             }
         }
-        // Load default view (Issues)
         Platform.runLater(() -> onIssuesClick(null));
     }
 
     @FXML
     void onIssuesClick(ActionEvent event) {
-        // Load Issue List View
         loadView("issue-list-view.fxml");
     }
 

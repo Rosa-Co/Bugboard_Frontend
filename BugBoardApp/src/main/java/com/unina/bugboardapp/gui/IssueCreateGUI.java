@@ -1,5 +1,6 @@
-package com.unina.bugboardapp.controller;
+package com.unina.bugboardapp.gui;
 
+import com.unina.bugboardapp.controller.AppController;
 import com.unina.bugboardapp.model.IssueType;
 import com.unina.bugboardapp.model.Priority;
 import com.unina.bugboardapp.model.IssueState;
@@ -12,7 +13,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-public class IssueCreateController {
+public class IssueCreateGUI {
 
     @FXML
     private TextField titleField;
