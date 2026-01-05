@@ -84,6 +84,39 @@ public class ApiClient {
         return executeRequest(request);
     }
 
+    public java.io.InputStream getStream(String endpoint) throws IOException, InterruptedException {
+        HttpRequest request = createGetRequest(endpoint);
+        HttpResponse<java.io.InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        if (response.statusCode() >= 400) {
+            logger.log(Level.WARNING, () -> "API Error " + response.statusCode());
+            throw new ApiException(response.statusCode(), "API call failed for stream");
+        }
+        return response.body();
+    }
+
+    public String postMultipart(String endpoint, Integer id, java.nio.file.Path file)
+            throws IOException, InterruptedException {
+        String boundary = "---" + System.currentTimeMillis();
+        HttpRequest.BodyPublisher bodyPublisher = buildMultipartBody(file, boundary);
+
+        HttpRequest.Builder builder = getBaseRequestBuilder(endpoint)
+                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .POST(bodyPublisher);
+
+        return executeRequest(builder.build());
+    }
+
+    private HttpRequest.BodyPublisher buildMultipartBody(java.nio.file.Path file, String boundary) throws IOException {
+        var byteArrays = new java.util.ArrayList<byte[]>();
+        String separator = "--" + boundary + "\r\nContent-Disposition: form-data; name=\"file\"; filename=\""
+                + file.getFileName() + "\"\r\nContent-Type: " + java.nio.file.Files.probeContentType(file) + "\r\n\r\n";
+        byteArrays.add(separator.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        byteArrays.add(java.nio.file.Files.readAllBytes(file));
+        byteArrays.add(("\r\n--" + boundary + "--\r\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        return HttpRequest.BodyPublishers.ofByteArrays(byteArrays);
+    }
+
+    // --- Specific Request Creators ---
 
 
     private HttpRequest createGetRequest(String endpoint) {
@@ -94,6 +127,7 @@ public class ApiClient {
 
     private HttpRequest createPostRequest(String endpoint, String jsonBody) {
         return getBaseRequestBuilder(endpoint)
+                .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
     }
@@ -109,7 +143,19 @@ public class ApiClient {
         if (token != null && !token.isEmpty()) {
             builder.header("Authorization", "Bearer " + token);
         }
-        builder.header("Content-Type", "application/json");
+        // Content-Type application/json is set in getBaseRequestBuilder by default in
+        // original code
+        // We need to be careful not to set it for multipart if it's already set.
+        // Let's modify getBaseRequestBuilder to NOT set Content-Type by default or
+        // override it.
+        // Checking the original code:
+        // 68: builder.header("Content-Type", "application/json");
+        // I should remove this line from getBaseRequestBuilder and add it to
+        // createPostRequest/createGetRequest (if needed) or handle it flexibly.
+
+        // However, since I am replacing the file content, I can just not include the
+        // Content-Type header in getBaseRequestBuilder
+        // and add it in createPostRequest and postMultipart manually.
         return builder;
     }
     /**
@@ -126,7 +172,7 @@ public class ApiClient {
     private void handleError(HttpResponse<String> response) {
         if (response.statusCode() >= 400) {
             logger.log(Level.WARNING, () -> "API Error " + response.statusCode() + ": " + response.body());
-            throw new ApiException(response.statusCode(),"API call failed: "  + response.body());
+            throw new ApiException(response.statusCode(), "API call failed: " + response.body());
         }
     }
 }

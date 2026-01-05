@@ -69,8 +69,6 @@ public class IssueListGUI {
     private TableView<Issue> issueTable;
 
     @FXML
-    private TableColumn<Issue, Integer> colId;
-    @FXML
     private TableColumn<Issue, String> colTitle;
     @FXML
     private TableColumn<Issue, IssueType> colType;
@@ -121,7 +119,6 @@ public class IssueListGUI {
      * </p>
      */
     private void setupColumns() {
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
         colPriority.setCellValueFactory(new PropertyValueFactory<>("priority"));
@@ -251,7 +248,7 @@ public class IssueListGUI {
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Issue #" + issue.getId());
+            stage.setTitle("Issue Details");
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
