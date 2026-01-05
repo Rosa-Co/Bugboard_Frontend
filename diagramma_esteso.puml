@@ -1,0 +1,511 @@
+@startuml
+!define LIGHTBLUE #E3F2FD
+!define LIGHTYELLOW #FFF9C4
+!define LIGHTGREEN #E8F5E9
+!define LIGHTPINK #FCE4EC
+!define LIGHTGRAY #ECEFF1
+!define LIGHTPURPLE #F3E5F5
+!define LIGHTORANGE #FFF3E0
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 100
+skinparam ranksep 130
+skinparam padding 15
+
+' ==================== LAYER 1: GUI ====================
+package "GUI (JavaFX)" LIGHTBLUE {
+    class LoginGUI {
+        - {static} logger : Logger
+        - {static} EMAIL_PATTERN : Pattern
+        - {static} MIN_PASSWORD_LENGTH : int
+        - {static} DASHBOARD_VIEW : String
+        - {static} DASHBOARD_TITLE : String
+        - emailField : TextField
+        - passwordField : PasswordField
+        - errorLabel : Label
+        - loginButton : Button
+        + initialize() : void
+        - onLogin(ActionEvent) : void
+        - validateInputs(String, String) : boolean
+        - isValidEmail(String) : boolean
+        - showError(String) : void
+        - hideError() : void
+        - navigateToDashboard(ActionEvent) : void
+        - createFadeTransition(Scene, Stage, Scene) : FadeTransition
+    }
+
+    class DashboardGUI {
+        - {static} logger : Logger
+        - userInfoLabel : Label
+        - btnIssues : Button
+        - btnUsers : Button
+        - contentArea : StackPane
+        + initialize() : void
+        - onIssuesClick(ActionEvent) : void
+        - onUsersClick(ActionEvent) : void
+        - onLogoutClick(ActionEvent) : void
+        - loadView(String) : void
+    }
+
+    class IssueListGUI {
+        - {static} logger : Logger
+        - searchField : TextField
+        - typeFilter : ComboBox<IssueType>
+        - stateFilter : ComboBox<IssueState>
+        - issueTable : TableView<Issue>
+        - colTitle : TableColumn<Issue, String>
+        - colType : TableColumn<Issue, IssueType>
+        - colPriority : TableColumn<Issue, Priority>
+        - colState : TableColumn<Issue, IssueState>
+        - colReporter : TableColumn<Issue, String>
+        - masterData : ObservableList<Issue>
+        + initialize() : void
+        - setupColumns() : void
+        - setupFiltersAndTable() : void
+        - isMatch(Issue, String, IssueType, IssueState) : boolean
+        - onNewIssue(ActionEvent) : void
+        - openDetailView(Issue) : void
+    }
+
+    class IssueDetailGUI {
+        - typeLabel : Label
+        - stateLabel : Label
+        - priorityLabel : Label
+        - titleLabel : Label
+        - reporterLabel : Label
+        - dateLabel : Label
+        - descriptionLabel : Label
+        - imageContainer : VBox
+        - imageView : ImageView
+        - commentsList : VBox
+        - commentArea : TextArea
+        - issue : Issue
+        - commentService : CommentService
+        - issueService : IssueService
+        + setIssue(Issue) : void
+        - updateUI() : void
+        - updateBasicInfo() : void
+        - updateImage() : void
+        - tryLoadLocalImage() : boolean
+        - loadImageAsync() : void
+        - updateComments() : void
+        - hideImage() : void
+        - onAddComment(ActionEvent) : void
+        - addCommentToVBox(Comment) : void
+    }
+
+    class IssueCreateGUI {
+        - titleField : TextField
+        - typeCombo : ComboBox<IssueType>
+        - priorityCombo : ComboBox<Priority>
+        - descriptionArea : TextArea
+        - imagePathField : TextField
+        + initialize() : void
+        - onCancel(ActionEvent) : void
+        - onBrowseImage(ActionEvent) : void
+        - onSave(ActionEvent) : void
+        - closeWindow() : void
+        - showAlert(String, String) : void
+    }
+
+    class UserCreateGUI {
+        - {static} logger : Logger
+        - {static} EMAIL_PATTERN : Pattern
+        - {static} MIN_PASSWORD_LENGTH : int
+        - {static} ERROR_MESSAGE : String
+        - {static} GENERIC_ERROR : String
+        - emailField : TextField
+        - passwordField : PasswordField
+        - typeCombo : ComboBox<UserType>
+        + initialize() : void
+        - onCancel(ActionEvent) : void
+        - onSave(ActionEvent) : void
+        - validateInput() : ValidationResult
+        - createUserAndShowSuccess() : void
+        - closeWindow() : void
+    }
+}
+
+' ==================== LAYER 2: CONTROLLERS ====================
+package "CONTROLLERS" LIGHTYELLOW {
+    class AppController <<Singleton>> {
+        - {static} instance : AppController
+        - appState : AppState
+        - authController : AuthenticationController
+        - issueController : IssueController
+        - userController : UserController
+        - commentController : CommentController
+        - AppController()
+        + {static} getInstance() : AppController
+        + login(String, String) : boolean
+        + logout() : void
+        + getLoggedUser() : User
+        + isLoggedIn() : boolean
+        + isCurrentUserAdmin() : boolean
+        + refreshData() : void
+        + createIssue(String, String, IssueType, Priority, String, IssueState) : void
+        + getAllIssues() : ObservableList<Issue>
+        + getIssuesFiltered(IssueType) : ObservableList<Issue>
+        + getIssuesByPriority(Priority) : ObservableList<Issue>
+        + getIssuesByState(IssueState) : ObservableList<Issue>
+        + createUser(String, String, UserType) : void
+        + existsUser(String) : boolean
+        + getAllUsers() : ObservableList<User>
+        + addComment(Issue, String, Consumer<Comment>) : void
+        + loadCommentsForIssue(Issue) : void
+    }
+
+    class AuthenticationController {
+        - {static} logger : Logger
+        - authService : AuthService
+        - appState : AppState
+        - issueController : IssueController
+        + AuthenticationController(AppState, IssueController)
+        + login(String, String) : boolean
+        + logout() : void
+    }
+
+    class IssueController {
+        - {static} logger : Logger
+        - issueService : IssueService
+        - appState : AppState
+        + IssueController(AppState)
+        + refreshData() : void
+        + createIssue(String, String, IssueType, Priority, String, IssueState) : void
+        - validateIssueInput(String, String, IssueType, Priority, IssueState) : void
+        + getIssuesFiltered(IssueType) : ObservableList<Issue>
+        + getIssuesByPriority(Priority) : ObservableList<Issue>
+        + getIssuesByState(IssueState) : ObservableList<Issue>
+    }
+
+    class UserController {
+        - {static} logger : Logger
+        - userService : UserService
+        - appState : AppState
+        + UserController(AppState)
+        + createUser(String, String, UserType) : void
+        - validateUserInput(String, String, UserType) : void
+        + existsUser(String) : boolean
+    }
+
+    class CommentController {
+        - {static} logger : Logger
+        - commentService : CommentService
+        - appState : AppState
+        + CommentController(AppState)
+        + addComment(Issue, String, Consumer<Comment>) : void
+        + loadCommentsForIssue(Issue) : void
+    }
+}
+
+' ==================== APP STATE ====================
+package "STATE MANAGEMENT" LIGHTPURPLE {
+    class AppState {
+        - users : ObservableList<User>
+        - issues : ObservableList<Issue>
+        - loggedUser : User
+        + AppState()
+        + getUsers() : ObservableList<User>
+        + getIssues() : ObservableList<Issue>
+        + getLoggedUser() : User
+        + setLoggedUser(User) : void
+        + isLoggedIn() : boolean
+        + isCurrentUserAdmin() : boolean
+    }
+
+    class SessionManager <<Singleton>> {
+        - {static} instance : SessionManager
+        - token : String
+        - user : User
+        - SessionManager()
+        + {static} getInstance() : SessionManager
+        + getToken() : String
+        + setToken(String) : void
+        + getUser() : User
+        + setUser(User) : void
+        + logout() : void
+        + isLoggedIn() : boolean
+        + isAdmin() : boolean
+        + login(User, String) : void
+    }
+}
+
+' ==================== LAYER 3: SERVICES ====================
+package "SERVICES" LIGHTGREEN {
+    class AuthService {
+        - apiClient : ApiClient
+        - mapper : ObjectMapper
+        + AuthService()
+        + login(String, String) : User
+    }
+
+    class IssueService {
+        - apiClient : ApiClient
+        - mapper : ObjectMapper
+        + IssueService()
+        + fetchAllIssues() : List<Issue>
+        + createIssue(Issue) : Issue
+        + downloadImage(String) : InputStream
+    }
+
+    class UserService {
+        - apiClient : ApiClient
+        - mapper : ObjectMapper
+        + UserService()
+        + createUser(User) : User
+        + existsUser(String) : boolean
+    }
+
+    class CommentService {
+        - apiClient : ApiClient
+        - mapper : ObjectMapper
+        + CommentService()
+        + createComment(Comment) : Comment
+        + getCommentsByIssueId(Integer) : List<Comment>
+    }
+
+    class ApiClient <<Singleton>> {
+        - {static} logger : Logger
+        - {static} BASE_URL : String
+        - {static} instance : ApiClient
+        - client : HttpClient
+        - ApiClient()
+        + {static} getInstance() : ApiClient
+        + get(String) : String
+        + post(String, String) : String
+        + getStream(String) : InputStream
+        + postMultipart(String, Path) : String
+        - buildMultipartBody(Path, String) : BodyPublisher
+        - createGetRequest(String) : HttpRequest
+        - createPostRequest(String, String) : HttpRequest
+        - getBaseRequestBuilder(String) : HttpRequest.Builder
+        - executeRequest(HttpRequest) : String
+        - handleError(HttpResponse<String>) : void
+    }
+}
+
+' ==================== LAYER 4: MODELS ====================
+package "MODELS" LIGHTPINK {
+    class Issue {
+        - id : Integer
+        - title : String
+        - description : String
+        - type : IssueType
+        - priority : Priority
+        - state : IssueState
+        - reporter : User
+        - imagePath : String
+        - comments : List<Comment>
+        + Issue()
+        + Issue(IssueType, String, String, String, IssueState, Priority, User)
+        + getId() : Integer
+        + setId(Integer) : void
+        + getTitle() : String
+        + setTitle(String) : void
+        + getDescription() : String
+        + setDescription(String) : void
+        + getType() : IssueType
+        + setType(IssueType) : void
+        + getPriority() : Priority
+        + setPriority(Priority) : void
+        + getState() : IssueState
+        + setState(IssueState) : void
+        + getReporter() : User
+        + setReporter(User) : void
+        + getImagePath() : String
+        + setImagePath(String) : void
+        + getComments() : List<Comment>
+        + setComments(List<Comment>) : void
+        + addComment(Comment) : void
+        + toString() : String
+    }
+
+    class User {
+        - id : Integer
+        - username : String
+        - password : String
+        - type : UserType
+        + User()
+        + User(String, String, UserType)
+        + getId() : Integer
+        + setId(Integer) : void
+        + getUsername() : String
+        + setUsername(String) : void
+        + getPassword() : String
+        + getType() : UserType
+        + equals(Object) : boolean
+        + hashCode() : int
+        + toString() : String
+    }
+
+    class Comment {
+        - id : Integer
+        - author : User
+        - issueId : Integer
+        - content : String
+        - timestamp : LocalDateTime
+        + Comment()
+        + Comment(User, String, Integer)
+        + getId() : Integer
+        + setId(Integer) : void
+        + getAuthor() : User
+        + setAuthor(User) : void
+        + getIssueId() : Integer
+        + setIssueId(Integer) : void
+        + getContent() : String
+        + setContent(String) : void
+        + getTimestamp() : LocalDateTime
+        + setTimestamp(LocalDateTime) : void
+        + getFormattedDate() : String
+        + getRelativeTime() : String
+    }
+
+    enum IssueType {
+        QUESTION
+        BUG
+        DOCUMENTATION
+        FEATURE
+    }
+
+    enum IssueState {
+        TODO
+        IN_PROGRESS
+        DONE
+    }
+
+    enum Priority {
+        LOW
+        MEDIUM
+        HIGH
+    }
+
+    enum UserType {
+        ADMIN
+        USER
+    }
+}
+
+' ==================== EXCEPTIONS ====================
+package "EXCEPTIONS" LIGHTORANGE {
+    class ApiException {
+        - statusCode : int
+        + ApiException(int, String)
+        + getStatusCode() : int
+    }
+
+    class AuthenticationException {
+        + AuthenticationException(String)
+        + AuthenticationException(String, Throwable)
+    }
+
+    class IssueException {
+        + IssueException(String)
+        + IssueException(String, Throwable)
+    }
+
+    class UserException {
+        + UserException(String)
+        + UserException(String, Throwable)
+    }
+
+    class CommentException {
+        + CommentException(String)
+        + CommentException(String, Throwable)
+    }
+}
+
+' ==================== LAYOUT HINTS ====================
+LoginGUI -[hidden]right- DashboardGUI
+DashboardGUI -[hidden]right- IssueListGUI
+IssueListGUI -[hidden]right- IssueDetailGUI
+IssueDetailGUI -[hidden]right- IssueCreateGUI
+IssueCreateGUI -[hidden]right- UserCreateGUI
+
+AuthenticationController -[hidden]right- IssueController
+IssueController -[hidden]right- UserController
+UserController -[hidden]right- CommentController
+
+AuthService -[hidden]right- IssueService
+IssueService -[hidden]right- UserService
+UserService -[hidden]right- CommentService
+
+Issue -[hidden]right- User
+User -[hidden]right- Comment
+
+' ==================== GUI -> CONTROLLERS ====================
+LoginGUI .down.> AppController
+DashboardGUI .down.> AppController
+IssueListGUI -down-> AppController
+IssueDetailGUI -down-> AppController
+IssueDetailGUI --> CommentService
+IssueDetailGUI --> IssueService
+IssueCreateGUI .down.> AppController
+UserCreateGUI .down.> AppController
+
+' ==================== APP CONTROLLER RELATIONSHIPS ====================
+AppController -down-> AppState
+AppController --> AuthenticationController
+AppController --> IssueController
+AppController --> UserController
+AppController --> CommentController
+
+' ==================== CONTROLLERS -> SERVICES ====================
+AuthenticationController -down-> AuthService
+AuthenticationController --> AppState
+AuthenticationController --> IssueController
+
+IssueController -down-> IssueService
+IssueController -left-> AppState
+
+UserController -down-> UserService
+UserController --> AppState
+
+CommentController -down-> CommentService
+CommentController -left-> AppState
+
+' ==================== SERVICES -> API CLIENT ====================
+AuthService -down-> ApiClient
+IssueService -down-> ApiClient
+UserService -down-> ApiClient
+CommentService -down-> ApiClient
+
+' ==================== SERVICES -> SESSION MANAGER ====================
+AuthService .down.> SessionManager
+ApiClient .down.> SessionManager
+
+' ==================== SERVICES -> MODELS ====================
+AuthService .down.> User
+IssueService .down.> Issue
+UserService .down.> User
+CommentService .down.> Comment
+
+IssueController .down.> Issue
+UserController .down.> User
+CommentController .down.> Comment
+
+' ==================== GUI -> MODELS ====================
+IssueListGUI .down.> Issue
+IssueDetailGUI .down.> Issue
+IssueDetailGUI .down.> Comment
+
+' ==================== MODEL RELATIONSHIPS ====================
+Issue "1" *-down-> "0..*" Comment : contains
+Issue "*" -down-> "1" User : reporter
+Comment "*" -down-> "1" User : author
+
+Issue *-right- IssueType
+Issue *-right- Priority
+Issue *-right- IssueState
+User *-down- UserType
+
+' ==================== EXCEPTIONS ====================
+ApiClient .right.> ApiException : throws
+AuthService .up.> AuthenticationException : throws
+IssueService .up.> IssueException : throws
+UserService .up.> UserException : throws
+CommentService .up.> CommentException : throws
+
+@enduml

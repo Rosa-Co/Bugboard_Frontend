@@ -1,0 +1,322 @@
+@startuml
+!define LIGHTBLUE #E3F2FD
+!define LIGHTYELLOW #FFF9C4
+!define LIGHTGREEN #E8F5E9
+!define LIGHTPINK #FCE4EC
+!define LIGHTGRAY #ECEFF1
+!define LIGHTPURPLE #F3E5F5
+!define LIGHTORANGE #FFF3E0
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 100
+skinparam ranksep 130
+skinparam padding 15
+
+' ==================== LAYER 1: GUI ====================
+package "GUI (JavaFX)" LIGHTBLUE {
+    class LoginGUI {
+        - emailField : TextField
+        - passwordField : PasswordField
+        + initialize() : void
+        - onLogin() : void
+    }
+
+    class DashboardGUI {
+        - userInfoLabel : Label
+        - contentArea : StackPane
+        + initialize() : void
+        - onIssuesClick() : void
+        - onUsersClick() : void
+    }
+
+    class IssueListGUI {
+        - issueTable : TableView<Issue>
+        - searchField : TextField
+        - typeFilter : ComboBox<IssueType>
+        + initialize() : void
+        - onNewIssue() : void
+    }
+
+    class IssueDetailGUI {
+        - issue : Issue
+        + setIssue(Issue) : void
+        - updateUI() : void
+        - onAddComment() : void
+    }
+
+    class IssueCreateGUI {
+        - titleField : TextField
+        - typeCombo : ComboBox<IssueType>
+        - priorityCombo : ComboBox<Priority>
+        + initialize() : void
+        - onSave() : void
+    }
+
+    class UserCreateGUI {
+        - emailField : TextField
+        - passwordField : PasswordField
+        - typeCombo : ComboBox<UserType>
+        + initialize() : void
+        - onSave() : void
+    }
+}
+
+' ==================== LAYER 2: CONTROLLERS ====================
+package "CONTROLLERS" LIGHTYELLOW {
+    class AppController <<Singleton>> {
+        - appState : AppState
+        + getInstance() : AppController
+        + login(String, String) : boolean
+        + logout() : void
+        + createIssue(...) : void
+        + createUser(...) : void
+        + addComment(...) : void
+    }
+
+    class AuthenticationController {
+        - authService : AuthService
+        - appState : AppState
+        + login(String, String) : boolean
+        + logout() : void
+    }
+
+    class IssueController {
+        - issueService : IssueService
+        + refreshData() : void
+        + createIssue(...) : void
+        + getIssuesFiltered() : ObservableList<Issue>
+    }
+
+    class UserController {
+        - userService : UserService
+        + createUser(...) : void
+        + existsUser(String) : boolean
+    }
+
+    class CommentController {
+        - commentService : CommentService
+        + addComment(...) : void
+        + loadCommentsForIssue() : void
+    }
+}
+
+' ==================== APP STATE ====================
+package "STATE MANAGEMENT" LIGHTPURPLE {
+    class AppState {
+        - users : ObservableList<User>
+        - issues : ObservableList<Issue>
+        - loggedUser : User
+        + isLoggedIn() : boolean
+        + isCurrentUserAdmin() : boolean
+    }
+
+    class SessionManager <<Singleton>> {
+        - token : String
+        - user : User
+        + getInstance() : SessionManager
+        + login(User, String) : void
+        + logout() : void
+        + isLoggedIn() : boolean
+        + isAdmin() : boolean
+    }
+}
+
+' ==================== LAYER 3: SERVICES ====================
+package "SERVICES" LIGHTGREEN {
+    class AuthService {
+        - apiClient : ApiClient
+        + login(String, String) : User
+    }
+
+    class IssueService {
+        - apiClient : ApiClient
+        + fetchAllIssues() : List<Issue>
+        + createIssue(Issue) : Issue
+        + downloadImage(String) : InputStream
+    }
+
+    class UserService {
+        - apiClient : ApiClient
+        + createUser(User) : User
+        + existsUser(String) : boolean
+    }
+
+    class CommentService {
+        - apiClient : ApiClient
+        + createComment(Comment) : Comment
+        + getCommentsByIssueId() : List<Comment>
+    }
+
+    class ApiClient <<Singleton>> {
+        - client : HttpClient
+        + getInstance() : ApiClient
+        + get(String) : String
+        + post(String, String) : String
+        + getStream(String) : InputStream
+    }
+}
+
+' ==================== LAYER 4: MODELS ====================
+package "MODELS" LIGHTPINK {
+    class Issue {
+        - id : Integer
+        - title : String
+        - description : String
+        - type : IssueType
+        - priority : Priority
+        - state : IssueState
+        - reporter : User
+        - imagePath : String
+        - comments : List<Comment>
+        + addComment(Comment) : void
+    }
+
+    class User {
+        - id : Integer
+        - username : String
+        - password : String
+        - type : UserType
+    }
+
+    class Comment {
+        - id : Integer
+        - author : User
+        - issueId : Integer
+        - content : String
+        - timestamp : LocalDateTime
+    }
+
+    enum IssueType {
+        QUESTION
+        BUG
+        DOCUMENTATION
+        FEATURE
+    }
+
+    enum IssueState {
+        TODO
+        IN_PROGRESS
+        DONE
+    }
+
+    enum Priority {
+        LOW
+        MEDIUM
+        HIGH
+    }
+
+    enum UserType {
+        ADMIN
+        USER
+    }
+}
+
+' ==================== EXCEPTIONS ====================
+package "EXCEPTIONS" LIGHTORANGE {
+    class ApiException {
+        - statusCode : int
+    }
+
+    class AuthenticationException
+    class IssueException
+    class UserException
+    class CommentException
+}
+
+' ==================== LAYOUT HINTS ====================
+LoginGUI -[hidden]right- DashboardGUI
+DashboardGUI -[hidden]right- IssueListGUI
+IssueListGUI -[hidden]right- IssueDetailGUI
+IssueDetailGUI -[hidden]right- IssueCreateGUI
+IssueCreateGUI -[hidden]right- UserCreateGUI
+
+AuthenticationController -[hidden]right- IssueController
+IssueController -[hidden]right- UserController
+UserController -[hidden]right- CommentController
+
+AuthService -[hidden]right- IssueService
+IssueService -[hidden]right- UserService
+UserService -[hidden]right- CommentService
+
+Issue -[hidden]right- User
+User -[hidden]right- Comment
+
+' ==================== GUI -> CONTROLLERS ====================
+LoginGUI .down.> AppController
+DashboardGUI .down.> AppController
+IssueListGUI -down-> AppController
+IssueDetailGUI -down-> AppController
+IssueDetailGUI --> CommentService
+IssueDetailGUI --> IssueService
+IssueCreateGUI .down.> AppController
+UserCreateGUI .down.> AppController
+
+' ==================== APP CONTROLLER RELATIONSHIPS ====================
+AppController -down-> AppState
+AppController --> AuthenticationController
+AppController --> IssueController
+AppController --> UserController
+AppController --> CommentController
+
+' ==================== CONTROLLERS -> SERVICES ====================
+AuthenticationController -down-> AuthService
+AuthenticationController --> AppState
+AuthenticationController --> IssueController
+
+IssueController -down-> IssueService
+IssueController -left-> AppState
+
+UserController -down-> UserService
+UserController --> AppState
+
+CommentController -down-> CommentService
+CommentController -left-> AppState
+
+' ==================== SERVICES -> API CLIENT ====================
+AuthService -down-> ApiClient
+IssueService -down-> ApiClient
+UserService -down-> ApiClient
+CommentService -down-> ApiClient
+
+' ==================== SERVICES -> SESSION MANAGER ====================
+AuthService .down.> SessionManager
+ApiClient .down.> SessionManager
+
+' ==================== SERVICES -> MODELS ====================
+AuthService .down.> User
+IssueService .down.> Issue
+UserService .down.> User
+CommentService .down.> Comment
+
+IssueController .down.> Issue
+UserController .down.> User
+CommentController .down.> Comment
+
+' ==================== GUI -> MODELS ====================
+IssueListGUI .down.> Issue
+IssueDetailGUI .down.> Issue
+IssueDetailGUI .down.> Comment
+
+' ==================== MODEL RELATIONSHIPS ====================
+Issue "1" *-down-> "0..*" Comment : contains
+Issue "*" -down-> "1" User : reporter
+Comment "*" -down-> "1" User : author
+
+Issue *-right- IssueType
+Issue *-right- Priority
+Issue *-right- IssueState
+User *-down- UserType
+
+' ==================== EXCEPTIONS ====================
+
+
+ApiClient .right.> ApiException : throws
+AuthService .up.> AuthenticationException : throws
+IssueService .up.> IssueException : throws
+UserService .up.> UserException : throws
+CommentService .up.> CommentException : throws
+
+@enduml
