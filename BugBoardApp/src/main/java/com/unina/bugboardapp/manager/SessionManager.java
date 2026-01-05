@@ -37,6 +37,12 @@ public class SessionManager {
 
     /**
      * Restituisce l'istanza singleton del {@code SessionManager}.
+     * <p>
+     * Il metodo è sincronizzato per evitare race condition in fase di prima
+     * inizializzazione
+     * in contesti multi-thread (attualmente non implementati ma in futuro
+     * potrebbero esserlo).
+     * </p>
      *
      * @return istanza unica del gestore sessione
      */
