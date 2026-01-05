@@ -1,4 +1,4 @@
-package com.unina.bugboardapp.model;
+package com.unina.bugboardapp.model.enums;
 
 public enum IssueState {
     TODO("To Do"),

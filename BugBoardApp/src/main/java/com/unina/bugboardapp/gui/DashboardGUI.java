@@ -3,7 +3,7 @@ package com.unina.bugboardapp.gui;
 import com.unina.bugboardapp.StartApplication;
 import com.unina.bugboardapp.controller.AppController;
 import com.unina.bugboardapp.model.User;
-import com.unina.bugboardapp.model.UserType;
+import com.unina.bugboardapp.model.enums.UserType;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

@@ -1,7 +1,7 @@
 package com.unina.bugboardapp.manager;
 
 import com.unina.bugboardapp.model.User;
-import com.unina.bugboardapp.model.UserType;
+import com.unina.bugboardapp.model.enums.UserType;
 
 public class SessionManager {
     private static SessionManager instance = null;

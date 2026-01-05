@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.*;
+import com.unina.bugboardapp.model.enums.IssueState;
+import com.unina.bugboardapp.model.enums.IssueType;
+import com.unina.bugboardapp.model.enums.Priority;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Issue {

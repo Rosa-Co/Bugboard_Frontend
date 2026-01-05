@@ -5,7 +5,7 @@ import com.unina.bugboardapp.controller.AppController;
 import com.unina.bugboardapp.dialog.ErrorDialog;
 import com.unina.bugboardapp.dialog.InfoDialog;
 import com.unina.bugboardapp.dialog.WarningDialog;
-import com.unina.bugboardapp.model.UserType;
+import com.unina.bugboardapp.model.enums.UserType;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

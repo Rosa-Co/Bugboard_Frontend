@@ -8,7 +8,7 @@ import com.unina.bugboardapp.dto.LoginResponseDTO;
 import com.unina.bugboardapp.exception.AuthenticationException;
 import com.unina.bugboardapp.manager.SessionManager;
 import com.unina.bugboardapp.model.User;
-import com.unina.bugboardapp.model.UserType;
+import com.unina.bugboardapp.model.enums.UserType;
 import java.io.IOException;
 
 public class AuthService {

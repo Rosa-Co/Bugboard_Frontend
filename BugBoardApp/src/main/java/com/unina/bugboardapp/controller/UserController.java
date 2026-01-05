@@ -3,7 +3,7 @@ package com.unina.bugboardapp.controller;
 import com.unina.bugboardapp.exception.ApiException;
 import com.unina.bugboardapp.exception.UserException;
 import com.unina.bugboardapp.model.User;
-import com.unina.bugboardapp.model.UserType;
+import com.unina.bugboardapp.model.enums.UserType;
 import com.unina.bugboardapp.service.UserService;
 import javafx.application.Platform;
 

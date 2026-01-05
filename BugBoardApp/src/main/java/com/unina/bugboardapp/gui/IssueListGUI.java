@@ -3,9 +3,9 @@ package com.unina.bugboardapp.gui;
 import com.unina.bugboardapp.StartApplication;
 import com.unina.bugboardapp.controller.AppController;
 import com.unina.bugboardapp.model.Issue;
-import com.unina.bugboardapp.model.IssueType;
-import com.unina.bugboardapp.model.Priority;
-import com.unina.bugboardapp.model.IssueState;
+import com.unina.bugboardapp.model.enums.IssueType;
+import com.unina.bugboardapp.model.enums.Priority;
+import com.unina.bugboardapp.model.enums.IssueState;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -50,7 +50,7 @@ public class IssueListGUI {
     private TableColumn<Issue, String> colReporter;
 
     private final ObservableList<Issue> masterData = FXCollections.observableArrayList();
-    private static final Logger logger = Logger.getLogger(IssueListController.class.getName());
+    private static final Logger logger = Logger.getLogger(IssueListGUI.class.getName());
 
     @FXML
     public void initialize() {

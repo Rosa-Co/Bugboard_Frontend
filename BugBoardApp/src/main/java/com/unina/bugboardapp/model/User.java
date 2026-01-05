@@ -4,6 +4,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.unina.bugboardapp.model.enums.UserType;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {

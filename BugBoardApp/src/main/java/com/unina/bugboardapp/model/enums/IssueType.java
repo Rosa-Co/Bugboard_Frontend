@@ -1,13 +1,14 @@
-package com.unina.bugboardapp.model;
+package com.unina.bugboardapp.model.enums;
 
-public enum Priority {
-    LOW("Low"),
-    MEDIUM("Medium"),
-    HIGH("High");
+public enum IssueType {
+    QUESTION("Question"),
+    BUG("Bug"),
+    DOCUMENTATION("Documentation"),
+    FEATURE("Feature");
 
     private final String label;
 
-    Priority(String label) {
+    IssueType(String label) {
         this.label = label;
     }
 
