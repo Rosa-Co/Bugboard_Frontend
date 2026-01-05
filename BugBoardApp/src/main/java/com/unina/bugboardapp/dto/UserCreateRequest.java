@@ -1,7 +1,7 @@
 package com.unina.bugboardapp.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.unina.bugboardapp.model.UserType;
+import com.unina.bugboardapp.model.enums.UserType;
 
 /**
  * DTO (Data Transfer Object) per la creazione di un utente.

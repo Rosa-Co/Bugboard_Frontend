@@ -2,7 +2,7 @@ package com.unina.bugboardapp.controller;
 
 import com.unina.bugboardapp.model.Issue;
 import com.unina.bugboardapp.model.User;
-import com.unina.bugboardapp.model.UserType;
+import com.unina.bugboardapp.model.enums.UserType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 

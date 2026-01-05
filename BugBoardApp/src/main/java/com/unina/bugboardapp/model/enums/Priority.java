@@ -1,4 +1,4 @@
-package com.unina.bugboardapp.model;
+package com.unina.bugboardapp.model.enums;
 /**
  * Enum che rappresenta la priorità di una issue.
  * <p>

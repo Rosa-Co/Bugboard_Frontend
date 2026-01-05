@@ -89,6 +89,9 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>com.unina.bugboardapp/com.unina.bugboardapp.StartApplication</mainClass>
+                            <jvmArgs>
+                                --enable-native-access=javafx.graphics
+                            </jvmArgs>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>

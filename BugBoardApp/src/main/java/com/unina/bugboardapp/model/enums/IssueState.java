@@ -1,4 +1,4 @@
-package com.unina.bugboardapp.model;
+package com.unina.bugboardapp.model.enums;
 
 /**
  * Rappresenta lo stato di avanzamento di una {@code Issue}.

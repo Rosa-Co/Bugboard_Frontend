@@ -1,9 +1,9 @@
 package com.unina.bugboardapp.gui;
 
 import com.unina.bugboardapp.controller.AppController;
-import com.unina.bugboardapp.model.IssueType;
-import com.unina.bugboardapp.model.Priority;
-import com.unina.bugboardapp.model.IssueState;
+import com.unina.bugboardapp.model.enums.IssueType;
+import com.unina.bugboardapp.model.enums.Priority;
+import com.unina.bugboardapp.model.enums.IssueState;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

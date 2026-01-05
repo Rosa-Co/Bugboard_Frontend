@@ -1,9 +1,9 @@
 package com.unina.bugboardapp.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.unina.bugboardapp.model.IssueType;
-import com.unina.bugboardapp.model.Priority;
-import com.unina.bugboardapp.model.IssueState;
+import com.unina.bugboardapp.model.enums.IssueType;
+import com.unina.bugboardapp.model.enums.Priority;
+import com.unina.bugboardapp.model.enums.IssueState;
 
 /**
  * DTO (Data Transfer Object) per la creazione di una segnalazione/issue.

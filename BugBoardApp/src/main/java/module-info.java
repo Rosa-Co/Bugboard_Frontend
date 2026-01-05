@@ -23,4 +23,6 @@ module com.unina.bugboardapp {
     exports com.unina.bugboardapp.utils;
     exports com.unina.bugboardapp.gui;
     opens com.unina.bugboardapp.gui to javafx.fxml;
+    exports com.unina.bugboardapp.model.enums;
+    opens com.unina.bugboardapp.model.enums to com.fasterxml.jackson.databind;
 }
