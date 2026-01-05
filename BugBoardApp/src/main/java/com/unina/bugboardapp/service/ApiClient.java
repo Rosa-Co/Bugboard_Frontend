@@ -11,6 +11,12 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.nio.file.Path;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
+import java.net.http.HttpRequest.BodyPublisher;
 /**
  * Client HTTP centralizzato per l'accesso alle API REST dell'applicazione.
  * <p>
@@ -83,18 +89,45 @@ public class ApiClient {
         HttpRequest request = createPostRequest(endpoint, jsonBody);
         return executeRequest(request);
     }
-
-    public java.io.InputStream getStream(String endpoint) throws IOException, InterruptedException {
+    /**
+     * Esegue una richiesta GET che restituisce un contenuto binario come {@link java.io.InputStream}.
+     * <p>
+     * È pensato per il download di risorse (es. immagini). In caso di status code HTTP &gt;= 400
+     * viene sollevata una {@link ApiException}.
+     * </p>
+     *
+     * <p><strong>Nota:</strong> lo stream restituito va chiuso dal chiamante.</p>
+     *
+     * @param endpoint path relativo dell'API (es. {@code "/images/<nome-file>"}).
+     * @return stream della risposta HTTP.
+     * @throws IOException          in caso di errore I/O durante l'invio/ricezione.
+     * @throws InterruptedException se il thread viene interrotto durante l'attesa della risposta.
+     * @throws ApiException         se la risposta HTTP ha status code &gt;= 400.
+     */
+    public InputStream getStream(String endpoint) throws IOException, InterruptedException {
         HttpRequest request = createGetRequest(endpoint);
-        HttpResponse<java.io.InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
         if (response.statusCode() >= 400) {
             logger.log(Level.WARNING, () -> "API Error " + response.statusCode());
             throw new ApiException(response.statusCode(), "API call failed for stream");
         }
         return response.body();
     }
-
-    public String postMultipart(String endpoint, Integer id, java.nio.file.Path file)
+    /**
+     * Esegue una POST multipart/form-data per caricare un file sul backend.
+     * <p>
+     * Costruisce un body multipart con un'unica parte chiamata {@code file} e imposta l'header
+     * {@code Content-Type: multipart/form-data; boundary=...}.
+     * </p>
+     *
+     * @param endpoint endpoint relativo (es. {@code "/issues/<id>/image"}).
+     * @param file     path del file da inviare.
+     * @return body della risposta come stringa.
+     * @throws IOException          in caso di errore I/O nella lettura del file o durante l'HTTP.
+     * @throws InterruptedException se il thread viene interrotto durante l'attesa della risposta.
+     * @throws ApiException         se la risposta HTTP ha status code &gt;= 400 (tramite {@code executeRequest}).
+     */
+    public String postMultipart(String endpoint, Path file)
             throws IOException, InterruptedException {
         String boundary = "---" + System.currentTimeMillis();
         HttpRequest.BodyPublisher bodyPublisher = buildMultipartBody(file, boundary);
@@ -105,18 +138,31 @@ public class ApiClient {
 
         return executeRequest(builder.build());
     }
-
-    private HttpRequest.BodyPublisher buildMultipartBody(java.nio.file.Path file, String boundary) throws IOException {
-        var byteArrays = new java.util.ArrayList<byte[]>();
+    /**
+     * Costruisce il {@link java.net.http.HttpRequest.BodyPublisher} per una richiesta multipart/form-data.
+     * <p>
+     * Il payload include:
+     * </p>
+     * <ul>
+     *   <li>intestazioni della parte (Content-Disposition e Content-Type)</li>
+     *   <li>byte del file</li>
+     *   <li>boundary di chiusura</li>
+     * </ul>
+     *
+     * @param file     file da includere nella parte multipart chiamata {@code file}.
+     * @param boundary boundary multipart (senza i prefissi {@code --}).
+     * @return publisher con i byte dell'intero payload multipart.
+     * @throws IOException in caso di errore nella lettura del file o nel rilevamento del MIME type.
+     */
+    private BodyPublisher buildMultipartBody(Path file, String boundary) throws IOException {
+        var byteArrays = new ArrayList<byte[]>();
         String separator = "--" + boundary + "\r\nContent-Disposition: form-data; name=\"file\"; filename=\""
-                + file.getFileName() + "\"\r\nContent-Type: " + java.nio.file.Files.probeContentType(file) + "\r\n\r\n";
-        byteArrays.add(separator.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-        byteArrays.add(java.nio.file.Files.readAllBytes(file));
-        byteArrays.add(("\r\n--" + boundary + "--\r\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                + file.getFileName() + "\"\r\nContent-Type: " + Files.probeContentType(file) + "\r\n\r\n";
+        byteArrays.add(separator.getBytes(StandardCharsets.UTF_8));
+        byteArrays.add(Files.readAllBytes(file));
+        byteArrays.add(("\r\n--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
         return HttpRequest.BodyPublishers.ofByteArrays(byteArrays);
     }
-
-    // --- Specific Request Creators ---
 
 
     private HttpRequest createGetRequest(String endpoint) {
@@ -143,19 +189,6 @@ public class ApiClient {
         if (token != null && !token.isEmpty()) {
             builder.header("Authorization", "Bearer " + token);
         }
-        // Content-Type application/json is set in getBaseRequestBuilder by default in
-        // original code
-        // We need to be careful not to set it for multipart if it's already set.
-        // Let's modify getBaseRequestBuilder to NOT set Content-Type by default or
-        // override it.
-        // Checking the original code:
-        // 68: builder.header("Content-Type", "application/json");
-        // I should remove this line from getBaseRequestBuilder and add it to
-        // createPostRequest/createGetRequest (if needed) or handle it flexibly.
-
-        // However, since I am replacing the file content, I can just not include the
-        // Content-Type header in getBaseRequestBuilder
-        // and add it in createPostRequest and postMultipart manually.
         return builder;
     }
     /**

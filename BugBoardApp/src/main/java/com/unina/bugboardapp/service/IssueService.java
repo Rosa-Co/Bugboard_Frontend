@@ -74,7 +74,6 @@ public class IssueService {
      */
     public Issue createIssue(Issue newIssue) throws IssueException {
         try {
-            mapper.registerModule(new JavaTimeModule());
             String localImagePath = newIssue.getImagePath();
 
             IssueCreateRequest request = new IssueCreateRequest(
@@ -97,8 +96,7 @@ public class IssueService {
             if (localImagePath != null && !localImagePath.isEmpty()) {
                 java.nio.file.Path path = java.nio.file.Path.of(localImagePath);
                 if (java.nio.file.Files.exists(path)) {
-                    String serverPath = apiClient.postMultipart("/images/upload/" + createdIssue.getId(),
-                            createdIssue.getId(), path);
+                    String serverPath = apiClient.postMultipart("/images/upload/" + createdIssue.getId(), path);
                     createdIssue.setImagePath(serverPath);
                 }
             }
@@ -110,18 +108,29 @@ public class IssueService {
             throw new IssueException("Issue creation failed: unpredicted error.", e);
         }
     }
-
+    /**
+     * Scarica un'immagine dal backend e restituisce lo stream dei byte.
+     * <p>
+     * Il parametro {@code filename} può contenere anche un path (con {@code /} o {@code \});
+     * in tal caso viene estratto solo il nome del file per evitare di inviare percorsi
+     * al server e ridurre il rischio di path traversal lato client.
+     * </p>
+     *
+     * <p><strong>Nota:</strong> lo stream restituito va chiuso dal chiamante.</p>
+     *
+     * @param filename nome file (o path) dell'immagine da scaricare
+     * @return {@link java.io.InputStream} con il contenuto dell'immagine
+     * @throws IssueException in caso di errore di comunicazione durante il download
+     */
     public java.io.InputStream downloadImage(String filename) throws IssueException {
         try {
-            // filename comes as "uploads/uuid_name.ext" from backend usually,
-            // but our API endpoint is /api/images/{filename}
-            // we need to extract just the filename if it contains directory
             String actualFilename = filename;
             if (filename.contains("/") || filename.contains("\\")) {
                 actualFilename = new java.io.File(filename).getName();
             }
             return apiClient.getStream("/images/" + actualFilename);
         } catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new IssueException("Error downloading image", e);
         }
     }

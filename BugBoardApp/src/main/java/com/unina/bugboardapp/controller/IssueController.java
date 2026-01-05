@@ -2,9 +2,9 @@ package com.unina.bugboardapp.controller;
 
 import com.unina.bugboardapp.exception.IssueException;
 import com.unina.bugboardapp.model.Issue;
-import com.unina.bugboardapp.model.IssueState;
-import com.unina.bugboardapp.model.IssueType;
-import com.unina.bugboardapp.model.Priority;
+import com.unina.bugboardapp.model.enums.IssueState;
+import com.unina.bugboardapp.model.enums.IssueType;
+import com.unina.bugboardapp.model.enums.Priority;
 import com.unina.bugboardapp.service.IssueService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
