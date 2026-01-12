@@ -9,6 +9,9 @@ import com.unina.bugboardapp.model.Issue;
 import com.unina.bugboardapp.dto.IssueCreateRequest;
 
 import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Files;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -18,8 +21,8 @@ import java.util.List;
  * Fornisce metodi per:
  * </p>
  * <ul>
- *   <li>recuperare tutte le issue</li>
- *   <li>creare una nuova issue</li>
+ *   <li>Recuperare tutte le issue</li>
+ *   <li>Creare una nuova issue</li>
  * </ul>
  *
  * <h2>Serializzazione JSON</h2>
@@ -96,8 +99,8 @@ public class IssueService {
             }
 
             if (localImagePath != null && !localImagePath.isEmpty()) {
-                java.nio.file.Path path = java.nio.file.Path.of(localImagePath);
-                if (java.nio.file.Files.exists(path)) {
+                Path path = Path.of(localImagePath);
+                if (Files.exists(path)) {
                     String serverPath = apiClient.postMultipart("/images/upload/" + createdIssue.getId(), path);
                     createdIssue.setImagePath(serverPath);
                 }
@@ -111,7 +114,7 @@ public class IssueService {
         }
     }
     /**
-     * Scarica un'immagine dal backend e restituisce lo stream dei byte.
+     * Scarica un'immagine dal backend e restituisce lo stream dei bytes.
      * <p>
      * Il parametro {@code filename} può contenere anche un path (con {@code /} o {@code \});
      * in tal caso viene estratto solo il nome del file per evitare di inviare percorsi
