@@ -128,39 +128,90 @@ public class IssueListGUI {
 
     /**
      * Inizializza filtri e pipeline dati della tabella (filtered + sorted) e imposta gli handler UI.
-     * <p>
-     * Imposta:
-     * <ul>
-     *   <li>Valori disponibili nei combo filtro (tutti i valori delle enum);</li>
-     *   <li>Una {@link FilteredList} basata su {@link #masterData} con predicato aggiornato dai listener;</li>
-     *   <li>Una {@link SortedList} con comparatore agganciato a quello della {@link #issueTable};</li>
-     *   <li>Una row factory che apre il dettaglio con doppio click.</li>
-     * </ul>
-     * </p>
      */
     private void setupFiltersAndTable() {
-        typeFilter.setItems(FXCollections.observableArrayList(IssueType.values()));
-        stateFilter.setItems(FXCollections.observableArrayList(IssueState.values()));
+        initializeFilterOptions();
+        configureFilterCells();
+        setupFilterListeners();
+        setupTableRowDoubleClick();
+    }
 
+    /**
+     * Popola le ComboBox dei filtri con le opzioni disponibili, includendo null per "Tutti".
+     */
+    private void initializeFilterOptions() {
+        ObservableList<IssueType> typeOptions = FXCollections.observableArrayList();
+        typeOptions.add(null);
+        typeOptions.addAll(IssueType.values());
+        typeFilter.setItems(typeOptions);
+
+        ObservableList<IssueState> stateOptions = FXCollections.observableArrayList();
+        stateOptions.add(null);
+        stateOptions.addAll(IssueState.values());
+        stateFilter.setItems(stateOptions);
+    }
+
+    /**
+     * Configura la visualizzazione personalizzata delle celle dei filtri per mostrare "All" quando null.
+     */
+    private void configureFilterCells() {
+        typeFilter.setButtonCell(createFilterCell("All Types"));
+        typeFilter.setCellFactory(lv -> createFilterCell("All Types"));
+        stateFilter.setButtonCell(createFilterCell("All States"));
+        stateFilter.setCellFactory(lv -> createFilterCell("All States"));
+    }
+
+    /**
+     * Crea una ListCell personalizzata che mostra un testo specifico quando il valore è null
+     * @param nullText testo da mostrare per il valore null
+     * @return ListCell configurata
+     */
+    private <T> ListCell<T> createFilterCell(String nullText) {
+        return new ListCell<>() {
+            @Override
+            protected void updateItem(T item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(item == null ? nullText : item.toString());
+            }
+        };
+    }
+
+    /**
+     * Imposta i listener sui filtri e collega la pipeline FilteredList -> SortedList -> TableView.
+     */
+    private void setupFilterListeners() {
         FilteredList<Issue> filteredData = new FilteredList<>(masterData, p -> true);
 
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> filteredData
-                .setPredicate(issue -> isMatch(issue, newVal, typeFilter.getValue(), stateFilter.getValue())));
+        searchField.textProperty().addListener((obs, oldVal, newVal) ->
+                updatePredicate(filteredData, newVal, typeFilter.getValue(), stateFilter.getValue()));
 
-        typeFilter.valueProperty().addListener((obs, oldVal, newVal) -> filteredData
-                .setPredicate(issue -> isMatch(issue, searchField.getText(), newVal, stateFilter.getValue())));
+        typeFilter.valueProperty().addListener((obs, oldVal, newVal) ->
+                updatePredicate(filteredData, searchField.getText(), newVal, stateFilter.getValue()));
 
-        stateFilter.valueProperty().addListener((obs, oldVal, newVal) -> filteredData
-                .setPredicate(issue -> isMatch(issue, searchField.getText(), typeFilter.getValue(), newVal)));
+        stateFilter.valueProperty().addListener((obs, oldVal, newVal) ->
+                updatePredicate(filteredData, searchField.getText(), typeFilter.getValue(), newVal));
 
         SortedList<Issue> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(issueTable.comparatorProperty());
         issueTable.setItems(sortedData);
+    }
 
+    /**
+     * Aggiorna il predicato della FilteredList con i valori correnti dei filtri. Evita duplicazione di codice.
+     */
+    private void updatePredicate(FilteredList<Issue> filteredData, String searchText,
+                                 IssueType type, IssueState state) {
+        filteredData.setPredicate(issue -> isMatch(issue, searchText, type, state));
+    }
+
+    /**
+     * Configura il doppio click sulle righe della tabella per aprire la vista dettaglio.
+     */
+    private void setupTableRowDoubleClick() {
         issueTable.setRowFactory(tv -> {
             TableRow<Issue> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
                     openDetailView(row.getItem());
                 }
             });
