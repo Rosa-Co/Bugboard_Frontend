@@ -49,7 +49,7 @@ public class UserCreateGUI {
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[a-zA-Z0-9_+&*-]++(?:\\.[a-zA-Z0-9_+&*-]++)*+@(?:[a-zA-Z0-9-]++\\.)++[a-zA-Z]{2,7}$");
 
-    private static final int MIN_PASSWORD_LENGTH = 3;
+    private static final int MIN_PASSWORD_LENGTH = 6;
     private static final String ERROR_MESSAGE = "Validation Error";
     private static final String GENERIC_ERROR = "Error";
 

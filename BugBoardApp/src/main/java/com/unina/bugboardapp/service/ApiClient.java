@@ -42,7 +42,7 @@ import java.net.http.HttpRequest.BodyPublisher;
  */
 public class ApiClient {
     private static final Logger logger = Logger.getLogger(ApiClient.class.getName());
-    private static final String BASE_URL = "http://localhost:8080/api";
+    private static final String BASE_URL = "http://4.178.64.157:8080/api";
     private static ApiClient instance;
     private final HttpClient client;
 
